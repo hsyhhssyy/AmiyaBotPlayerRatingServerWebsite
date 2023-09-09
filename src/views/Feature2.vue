@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>这是功能 2 页面</h1>
+    <h1>这个页面还没做呢</h1>
   </div>
 </template>
 

@@ -1,14 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue'; 
-import Home from '../views/Home.vue'; 
+import RegularHome from '../views/RegularHome.vue'; 
 import CredManagement from '../views/CredManagement.vue';
 import Feature2 from '../views/Feature2.vue';
+import Authorize from '../views/Authorize.vue';
+import Register from '../views/Register.vue';
 
 const routes = [
   {
+    path: '/register',
+    name: 'Register',
+    component: Register,
+  },
+  {
+    path: '/authorize',
+    name: 'Authorize',
+    component: Authorize,
+  },
+  {
     path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'regular-home',
+    component: RegularHome,
     children: [
       {
         path: 'cred-management',

@@ -10,6 +10,7 @@
       <el-aside width="200px">
         <el-menu :router="true" class="aside-menu">
           <el-menu-item index="/cred-management">管理Cred</el-menu-item>
+          <el-menu-item index="/feature2">管理Box</el-menu-item>
           <el-menu-item index="/feature2">管理授权</el-menu-item>
           <el-menu-item index="/logout" class="logout-item">登出</el-menu-item>
         </el-menu>
