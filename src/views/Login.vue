@@ -10,9 +10,11 @@
 <script lang="ts">
 import { ref } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 export default {
     setup() {
+        const router = useRouter();
         const email = ref('');
         const password = ref('');
 

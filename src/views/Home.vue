@@ -6,11 +6,12 @@
         <div class="user-avatar">用户头像</div>
       </div>
     </el-header>
-    <el-container>
+    <el-container class="aside-container">
       <el-aside width="200px">
-        <el-menu :router="true">
-          <el-menu-item index="/cred-management">Cred 管理</el-menu-item>
-          <el-menu-item index="/feature2">功能 2</el-menu-item>
+        <el-menu :router="true" class="aside-menu">
+          <el-menu-item index="/cred-management">管理Cred</el-menu-item>
+          <el-menu-item index="/feature2">管理授权</el-menu-item>
+          <el-menu-item index="/logout" class="logout-item">登出</el-menu-item>
         </el-menu>
       </el-aside>
       <el-main>
@@ -51,4 +52,17 @@ export default defineComponent({
 .user-avatar {
   margin-right: 20px;
 }
+
+
+.aside-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.logout-item {
+  margin-top: auto;
+}
+
+
 </style>

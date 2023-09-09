@@ -21,7 +21,7 @@ export const createCredential = async (cred: string) => {
       '/api/SKLandCredential/Create',
       {
         // 将 cred 对象传递到请求体
-        cred,
+        Credential:cred,
       },
       {
         headers: {

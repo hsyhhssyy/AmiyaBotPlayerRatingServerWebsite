@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="full-height">
     <router-view />
   </div>
 </template>
@@ -11,5 +11,11 @@ export default {
 </script>
 
 <style>
-/* 全局样式 */
+
+.full-height {
+  min-height: calc(100vh - 16px);
+  display: flex;
+  flex-direction: column;
+}
+
 </style>

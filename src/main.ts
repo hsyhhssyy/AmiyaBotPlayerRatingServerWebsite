@@ -4,11 +4,16 @@ import 'element-plus/dist/index.css'
 import App from './App.vue';
 import axios from 'axios';
 import router from './router'; // 引入 router 对象
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
-createApp(App)
-  .use(ElementPlus)
-  .use(router) // 使用 router 对象
-  .mount('#app');
+const app = createApp(App)
+app.use(ElementPlus)
+app.use(router) // 使用 router 对象
+app.mount('#app');
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
+
 
 // 设置 axios 基础 URL
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
