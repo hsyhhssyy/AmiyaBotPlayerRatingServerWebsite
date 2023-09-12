@@ -1,10 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '../views/Login.vue'; 
-import RegularHome from '../views/RegularHome.vue'; 
+import Login from '../views/Login.vue';
+import RegularHome from '../views/RegularHome.vue';
 import CredManagement from '../views/CredManagement.vue';
 import Feature2 from '../views/Feature2.vue';
 import Authorize from '../views/Authorize.vue';
 import Register from '../views/Register.vue';
+import DeveloperHome from '../views/DeveloperHome.vue';
+import ClientManagment from '../views/ClientManagment.vue';
 
 const routes = [
   {
@@ -18,13 +20,28 @@ const routes = [
     component: Authorize,
   },
   {
-    path: '/',
+    path: '/regular-home',
     name: 'regular-home',
     component: RegularHome,
     children: [
       {
         path: 'cred-management',
         component: CredManagement,
+      },
+      {
+        path: 'feature2',
+        component: Feature2,
+      },
+    ],
+  },
+  {
+    path: '/developer-home',
+    name: 'developer-home',
+    component: DeveloperHome,
+    children: [
+      {
+        path: 'client-management',
+        component: ClientManagment,
       },
       {
         path: 'feature2',
@@ -45,7 +62,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  if (to.path !== '/') {
+  if (to.path !== '/' && to.path !== '/developer-home' && to.path !== '/regular-home') {
     next();
     return;
   }
@@ -54,8 +71,14 @@ router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('jwt-token');
 
   if (token) {
-    // 如果有 token，允许进入预定路由
-    next();
+    const role = localStorage.getItem('user-role');
+    if (role === "开发者账户" && to.path !== '/developer-home') {
+      next('/developer-home');
+    } else if (to.path !== '/regular-home') {
+      next('/regular-home');
+    } else {
+      next();
+    }
   } else {
     // 如果没有 token，重定向到登录页
     next('/login');

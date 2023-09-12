@@ -5,7 +5,7 @@ export const getCredentials = async () => {
   try {
     const response = await axios.get('/api/SKLandCredential/List', {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt-token')}`, // 或者其他存储 token 的方式
+        Authorization: `Bearer ${localStorage.getItem('jwt-token')}`, 
       },
     });
     return response.data;

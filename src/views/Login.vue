@@ -49,8 +49,8 @@ export default {
 
                     response = await axios.get(import.meta.env.VITE_BACKEND_BASE_URL + '/api/account/describe');
 
-                    if(response.data.Roles){
-                        localStorage.setItem('user-role', response.data.Roles);
+                    if(response.data.roles){
+                        localStorage.setItem('user-role', response.data.roles[0]);
                     }
 
                     router.push('/');
