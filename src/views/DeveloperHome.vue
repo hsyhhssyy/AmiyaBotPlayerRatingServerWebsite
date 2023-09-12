@@ -2,15 +2,15 @@
   <el-container>
     <el-header>
       <div class="header-content">
-        <div class="logo">您的Logo</div>
-        <p>开发者中心</p>
-        <div class="user-avatar">用户头像</div>
+        <div class="logo">森空岛凭据管理中心-开发者中心</div>
+        <div class="user-avatar"></div>
       </div>
     </el-header>
     <el-container class="aside-container">
       <el-aside width="200px">
         <el-menu :router="true" class="aside-menu">
-          <el-menu-item index="/client-management">管理Client</el-menu-item>
+          <el-menu-item index="/developer-home/client-management">管理应用</el-menu-item>
+          <el-menu-item index="/developer-home/feature2">管理授权</el-menu-item>
           <el-menu-item index="/logout" class="logout-item">登出</el-menu-item>
         </el-menu>
       </el-aside>

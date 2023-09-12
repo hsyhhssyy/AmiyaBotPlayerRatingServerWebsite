@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="header">
-      <h1 class="title">Cred 管理</h1>
-      <el-button type="primary" @click="showDialog = true">添加 Cred</el-button>
+      <h1 class="title">凭据管理</h1>
+      <el-button type="primary" @click="showDialog = true">添加凭据</el-button>
     </div>
     <el-dialog v-model="showDialog">
-      <el-input v-model="newCred" placeholder="请输入 Cred"></el-input>
+      <el-input v-model="newCred" placeholder="请输入凭据"></el-input>
       <template #footer>
         <el-button @click="showDialog = false">取消</el-button>
         <el-button type="primary" @click="addCred">确认添加</el-button>

@@ -7,6 +7,7 @@ import Authorize from '../views/Authorize.vue';
 import Register from '../views/Register.vue';
 import DeveloperHome from '../views/DeveloperHome.vue';
 import ClientManagment from '../views/ClientManagment.vue';
+import Logout from '../views/Logout.vue';
 
 const routes = [
   {
@@ -54,6 +55,11 @@ const routes = [
     name: 'Login',
     component: Login,
   },
+  {
+    path: '/logout',
+    name: 'Logout',
+    component: Logout,
+  },
 ];
 
 const router = createRouter({
@@ -74,7 +80,7 @@ router.beforeEach((to, _from, next) => {
     const role = localStorage.getItem('user-role');
     if (role === "开发者账户" && to.path !== '/developer-home') {
       next('/developer-home');
-    } else if (to.path !== '/regular-home') {
+    } else if (role !== "开发者账户" && to.path !== '/regular-home') {
       next('/regular-home');
     } else {
       next();

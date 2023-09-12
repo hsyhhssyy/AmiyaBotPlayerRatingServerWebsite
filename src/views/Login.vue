@@ -110,4 +110,5 @@ export default {
     font-size: 14px;
     color: gray;
 }
+
 </style>
