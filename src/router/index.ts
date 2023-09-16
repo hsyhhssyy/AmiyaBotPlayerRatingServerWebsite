@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import RegularHome from '../views/RegularHome.vue';
+import DeveloperHome from '../views/DeveloperHome.vue';
+import AdminHome from '../views/AdminHome.vue';
 import CredManagement from '../views/CredManagement.vue';
 import Feature2 from '../views/Feature2.vue';
 import Authorize from '../views/Authorize.vue';
 import Register from '../views/Register.vue';
-import DeveloperHome from '../views/DeveloperHome.vue';
 import ClientManagment from '../views/ClientManagment.vue';
 import Logout from '../views/Logout.vue';
 import OAuth from '../views/OAuth.vue';
@@ -52,6 +53,13 @@ const routes = [
     ],
   },
   {
+    path: '/admin-home',
+    name: 'admin-home',
+    component: AdminHome,
+    children: [
+    ],
+  },
+  {
     path: '/login',
     name: 'Login',
     component: Login,
@@ -74,7 +82,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  if (to.path !== '/' && to.path !== '/developer-home' && to.path !== '/regular-home') {
+  if (to.path !== '/' && to.path !== '/developer-home' && to.path !== '/regular-home' && to.path !== '/admin-home') {
     next();
     return;
   }
@@ -86,7 +94,9 @@ router.beforeEach((to, _from, next) => {
     const role = localStorage.getItem('user-role');
     if (role === "开发者账户" && to.path !== '/developer-home') {
       next('/developer-home');
-    } else if (role !== "开发者账户" && to.path !== '/regular-home') {
+    } else if (role === "管理员账户" && to.path !== '/admin-home') {
+      next('/admin-home');
+    } else if (role !== "开发者账户" && role !== "管理员账户" && to.path !== '/regular-home') {
       next('/regular-home');
     } else {
       next();
