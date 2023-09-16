@@ -5,7 +5,7 @@ interface LoginResult {
     error?: string; // 错误信息是可选的，因为如果登录成功，将没有错误信息。
 }
 
-export const loginAPI = async (email: string, password: string):Promise<LoginResult>  => {
+export const loginAPI = async (email: string, password: string): Promise<LoginResult> => {
     try {
         const response = await axios.post(import.meta.env.VITE_BACKEND_BASE_URL + '/api/account/login', {
             email,
@@ -16,14 +16,14 @@ export const loginAPI = async (email: string, password: string):Promise<LoginRes
             localStorage.setItem('jwt-token', response.data.token);
 
             const userRole = await describeAPI();
-            if(userRole){
+            if (userRole) {
                 localStorage.setItem('user-role', userRole);
             }
 
             return { success: true };
         }
         return { success: false, error: "登录失败" };
-    } catch (error:any) {
+    } catch (error: any) {
         return { success: false, error: error.message || "未知错误" };
     }
 };
@@ -32,7 +32,7 @@ export const describeAPI = async () => {
     try {
         const response = await axios.get(import.meta.env.VITE_BACKEND_BASE_URL + '/api/account/describe');
         return response.data.roles ? response.data.roles[0] : null;
-    } catch (error:any) {
+    } catch (error: any) {
         return null;
     }
 };
@@ -44,7 +44,18 @@ export const isLoggedIn = (): boolean => {
     return (!!token) && (!!role); // 双重否定将 null 或 undefined 转换为 false，有效值转换为 true
 };
 
-export const getRole = (): string|null =>{
+export const getRole = (): string | null => {
     const role = localStorage.getItem('user-role');
     return role;
 }
+
+
+export const authorizeApi = async (clientId: string, redirectUri: string, state: string) => {
+    try {
+        const encodedRedirectUri = encodeURIComponent(redirectUri);
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/connect/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodedRedirectUri}&scope=TestReadData&state=${state}`);
+        return response
+    } catch (error: any) {
+        return null;
+    }
+};

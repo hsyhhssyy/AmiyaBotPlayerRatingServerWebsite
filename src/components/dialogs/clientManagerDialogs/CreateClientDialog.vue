@@ -37,7 +37,7 @@
 </template>
   
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 // 接收来自父组件的 props
 const props = defineProps<{

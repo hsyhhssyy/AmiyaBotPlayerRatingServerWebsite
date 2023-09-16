@@ -294,3 +294,20 @@ namespace AmiyaBotPlayerRatingServer.Controllers
 }
 
 如果这是我后端的代码,我是应该在vue端直接调用哪一个接口?还是创建一个新的action来处理这个情形?
+
+
+openiddict的authorize会在authorization code流程执行的时候,自动返回302进行重定向。
+但是访问这个接口需要header上的Authorize来验证当前用户身份，我的前端如果通过window.location.href跳转到authorize页面，无法提供这个验证。
+如果我通过axios访问这个地址，302会重定向到redirect_uri,导致我收到了redirect_uri的数据.
+我该怎么正确的配置这个流程呢?
+
+标准的OpenId OAuth规范的authorize端点会在authorization code流程执行的时候,自动返回302进行重定向。
+但是如果我是使用jwt来验证用户身份的话，访问这个接口需要header上的Authorize来验证当前用户身份。
+那么我的前端如果通过window.location.href跳转到authorize页面，无法提供这个验证。
+如果我通过axios访问这个地址，302会重定向到redirect_uri,导致我收到了redirect_uri的数据而不是code。
+我问了ChatGPT，他说你需要用cookie来验证用户身份。
+但是jwt和cookie不兼容，我觉得市面上这么多OAuth，肯定不是都用的cookie。
+
+我的后端Api使用了[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]来验证用户的身份，
+通常来说jwt都是放在Header的Authorization头中
+我是否可以设置一个cookie并让这个验证方式可以验证cookie中的jwt呢？

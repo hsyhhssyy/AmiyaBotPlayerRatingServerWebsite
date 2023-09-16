@@ -18,7 +18,7 @@
         <el-alert title="该应用想要授权获取您的干员列表。" type="warning" show-icon :closable="false" class="custom-alert"></el-alert>
 
         <!-- 登陆前 -->
-        <div v-if="!isLoggedIn">
+        <div v-if="!isUserLoggedIn">
           <el-alert title="您还没有登录，请先登录：" type="warning" show-icon :closable="false" class="custom-alert"></el-alert>
           <label for="username">邮箱:</label>
           <el-input id="username" v-model="username" placeholder="请输入用户名" class="input-margin"></el-input>
@@ -27,15 +27,15 @@
           <el-input id="password" v-model="password" type="password" placeholder="请输入密码" class="input-margin"></el-input>
 
           <el-button type="primary" @click="login" class="button-margin">登录</el-button>
-          <el-button type="secondary" @click="login" class="button-margin">我还没有账户，立刻注册</el-button>
+          <el-button type="secondary" @click="openRegisterPage" class="button-margin">我还没有账户，立刻注册</el-button>
 
         </div>
 
         <!-- 登陆后 -->
         <div v-else>
           <div class="cred-list">
-            <CredCard v-for="cred in creds" :key="cred.id" :cred="cred" 
-            @click="selectCred(cred)" :is-selected="cred==selectedCred"/>
+            <CredCard v-for="cred in creds" :key="cred.id" :cred="cred" @click="selectCred(cred)"
+              :is-selected="cred == selectedCred" />
           </div>
           <el-divider></el-divider>
           <el-button type="success" @click="authorize(true)" :disabled="!selectedCred">同意</el-button>
@@ -46,115 +46,133 @@
   </el-container>
 </template>
   
-<script lang="ts">
+<script setup lang="ts">
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import { ElMessage, ElAlert, ElAvatar, ElDivider } from 'element-plus';
+
 import { getClient } from '../api/Client';
 import { isLoggedIn, getRole } from '../api/Account';
 import CredCard, { Cred } from '../components/CredentialCard.vue';
 import { getCredentials } from '../api/SKLandCredential';
+import { loginAPI } from '../api/Account';
 
-export default {
-  components: {
-    ElAlert,
-    ElAvatar,
-    ElDivider,
-    CredCard,
-  },
-  setup() {
-    const appIcon = computed(() => `data:image/png;base64,${clientInfo.value.IconBase64}`);
-    const appDescription = computed(() => clientInfo.value.Description);
+const appIcon = computed(() => `data:image/png;base64,${clientInfo.value.IconBase64}`);
+const appDescription = computed(() => clientInfo.value.Description);
 
-    const isUserLoggedIn = ref(false);
-    const playerAvatar = ref('');
-    const username = ref('');
-    const password = ref('');
-    const selectedCred = ref<Cred | null>(null);
+const isUserLoggedIn = ref(false);
+//const playerAvatar = ref('');
+const username = ref('');
+const password = ref('');
+const selectedCred = ref<Cred | null>(null);
 
-    const creds = ref<Cred[]>([]);
+const creds = ref<Cred[]>([]);
 
-    const clientInfo = ref({
-      ClientId: '',
-      FriendlyName: '',
-      Description: '',
-      IconBase64: ''
-    });
+const clientInfo = ref({
+  ClientId: '',
+  FriendlyName: '',
+  Description: '',
+  IconBase64: ''
+});
 
-    const selectCred = (cred: any) => {
-      selectedCred.value = cred;
-    };
+const selectCred = (cred: any) => {
+  selectedCred.value = cred;
+};
 
-    const fetchClientInfo = async () => {
-      try {
-        const clientId = new URLSearchParams(window.location.search).get('client-id');
-        if (clientId) {
-          const response = await getClient(clientId);
-          if (response) {
-            clientInfo.value.ClientId = response.clientId || '';
-            clientInfo.value.FriendlyName = response.friendlyName || '';
-            clientInfo.value.Description = response.description || '';
-            clientInfo.value.IconBase64 = response.iconBase64 || '';
-          }
-        } else {
-          ElMessage.error('client-id 参数缺失');
-        }
-      } catch (error) {
-        ElMessage.error('获取客户端信息失败');
+const fetchClientInfo = async () => {
+  try {
+    const clientId = new URLSearchParams(window.location.search).get('client-id');
+    if (clientId) {
+      const response = await getClient(clientId);
+      if (response) {
+        clientInfo.value.ClientId = response.clientId || '';
+        clientInfo.value.FriendlyName = response.friendlyName || '';
+        clientInfo.value.Description = response.description || '';
+        clientInfo.value.IconBase64 = response.iconBase64 || '';
       }
-    };
-
-    onMounted(async () => {
-      fetchClientInfo();
-
-      await checkAndRefresh();
-    });
-
-    const checkAndRefresh = async () => {
-      var ret = isLoggedIn() && getRole() === "普通账户"; // 每当组件更新时检查
-
-      if (ret) {
-        creds.value = await getCredentials();
-      }
-      isUserLoggedIn.value = ret
-      return ret
+    } else {
+      ElMessage.error('client-id 参数缺失');
     }
+  } catch (error) {
+    ElMessage.error('获取客户端信息失败');
+  }
+};
 
-    //检查是否Login
-    watchEffect(() => {
-      checkAndRefresh()
-    });
+onMounted(async () => {
+  fetchClientInfo();
+  await checkAndRefresh();
+});
 
-    const login = async () => {
+const checkAndRefresh = async () => {
+  var ret = isLoggedIn() && getRole() === "普通账户";
+  if (ret) {
+    creds.value = await getCredentials();
+  }
+  isUserLoggedIn.value = ret;
+  return ret;
+};
 
-    };
+watchEffect(() => {
+  checkAndRefresh();
+});
 
-    const authorize = async (isAuthorized: boolean) => {
-      if (isAuthorized) {
+const login = async () => {
+  const { success, error } = await loginAPI(username.value, password.value);
+  if (success) {
+    await checkAndRefresh()
+  } else {
+    ElMessage.error(error || '登录失败');
+  }
+};
 
-      }
-    };
+const authorize = async (isAuthorized: boolean) => {
+  const redirectUri = new URLSearchParams(window.location.search).get('redirectUri');
+  const state = new URLSearchParams(window.location.search).get('state');
+  const clientId = new URLSearchParams(window.location.search).get('client-id');
 
-    const openRegisterPage = () => {
-      window.open('/register', '_blank');
-    };
+  if (isAuthorized) {
+    if(redirectUri==null){
+      ElMessage.error('错误的应用参数：redirectUri缺失。请联系应用开发者');
+      return
+    }
+    const encodedRedirectUri = encodeURIComponent(redirectUri);
+    //向后端Api的Authorize接口发送请求
+    window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/connect/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodedRedirectUri}&scope=TestReadData&state=${state}`;
+    // if (redirectUri == null) {
+    //   ElMessage.error('错误的应用参数：redirectUri缺失。请联系应用开发者');
+    //   return
+    // }
+    // var response = await authorizeApi(clientId!, redirectUri, state!)
+    // if (response?.status == 302) {
+    //   var redirectLocation = response.headers["Location"];
+    //   if (redirectLocation) {
+    //     window.location.href = redirectLocation;
+    //     return
+    //   }
+    // }
 
-    return {
-      appIcon,
-      appDescription,
-      creds,
-      isLoggedIn,
-      playerAvatar,
-      username,
-      password,
-      clientInfo,
-      selectedCred,
-      selectCred,
-      login,
-      authorize,
-      openRegisterPage,
-      fetchClientInfo,
-    };
-  },
+    // if (response?.status == 400) {
+    //   const errorText = response.data;
+    //   const lines = errorText.split('\n');
+    //   for (const line of lines) {
+    //     if (line.startsWith('error_description:')) {
+    //       const errorDescription = line.split('error_description:')[1].trim();
+
+    //       ElMessage.error('授权错误:' + errorDescription);
+    //       return
+    //     }
+    //   }
+    // }
+
+    // ElMessage.error('授权错误:网络错误!');
+    // return
+  } else {
+    //直接重定向回目标页面并且不传递code
+    window.location.href = `${redirectUri}?client-id=${clientId}&state=${state}`;
+  }
+};
+
+const openRegisterPage = () => {
+  window.open('/register', '_blank');
 };
 </script>
   
