@@ -25,7 +25,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import CredCard,{ Cred } from '../components/CredentialCard.vue';
-import { getCredentials, createCredential } from '../api/SKLandCredential';
+import { getCredentials, createCredential,deleteCredential } from '../api/SKLandCredential';
+import { ElMessage } from 'element-plus';
 
 export default defineComponent({
   components: {
@@ -53,15 +54,11 @@ export default defineComponent({
       });
     };
 
-    const deleteCred = (_credId: string) => {
-      // 这里应调用删除 API
-      // 假设有一个 deleteCredential() 函数来发送删除请求
-      // deleteCredential(credId).then(response => {
-      //   if (response.message === "Credential successfully deleted.") {
-      //     // 从列表中移除已删除的 Cred
-      //     creds.value = creds.value.filter(cred => cred.id !== credId);
-      //   }
-      // });
+    const deleteCred = (credId: string) => {
+      deleteCredential(credId).then((_response) => {
+        ElMessage.info('凭据已删除');
+        getCredentials()
+      });
     };
 
     return {

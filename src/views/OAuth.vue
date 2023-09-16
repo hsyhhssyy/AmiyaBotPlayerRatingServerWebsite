@@ -106,6 +106,9 @@ const checkAndRefresh = async () => {
   var ret = isLoggedIn() && getRole() === "普通账户";
   if (ret) {
     creds.value = await getCredentials();
+    if(selectedCred.value==null&&creds.value.length>0){
+      selectedCred.value = creds.value[0]
+    }
   }
   isUserLoggedIn.value = ret;
   return ret;
@@ -136,35 +139,7 @@ const authorize = async (isAuthorized: boolean) => {
     }
     const encodedRedirectUri = encodeURIComponent(redirectUri);
     //向后端Api的Authorize接口发送请求
-    window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/connect/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodedRedirectUri}&scope=TestReadData&state=${state}`;
-    // if (redirectUri == null) {
-    //   ElMessage.error('错误的应用参数：redirectUri缺失。请联系应用开发者');
-    //   return
-    // }
-    // var response = await authorizeApi(clientId!, redirectUri, state!)
-    // if (response?.status == 302) {
-    //   var redirectLocation = response.headers["Location"];
-    //   if (redirectLocation) {
-    //     window.location.href = redirectLocation;
-    //     return
-    //   }
-    // }
-
-    // if (response?.status == 400) {
-    //   const errorText = response.data;
-    //   const lines = errorText.split('\n');
-    //   for (const line of lines) {
-    //     if (line.startsWith('error_description:')) {
-    //       const errorDescription = line.split('error_description:')[1].trim();
-
-    //       ElMessage.error('授权错误:' + errorDescription);
-    //       return
-    //     }
-    //   }
-    // }
-
-    // ElMessage.error('授权错误:网络错误!');
-    // return
+    window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/connect/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodedRedirectUri}&scope=TestReadData&state=${state}&cred=${selectedCred.value?.id}`;
   } else {
     //直接重定向回目标页面并且不传递code
     window.location.href = `${redirectUri}?client-id=${clientId}&state=${state}`;

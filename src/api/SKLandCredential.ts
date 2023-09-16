@@ -25,12 +25,28 @@ export const createCredential = async (cred: string) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('jwt-token')}`, // 或者其他存储 token 的方式
+          Authorization: `Bearer ${localStorage.getItem('jwt-token')}`, 
         },
       }
     );
     return response.data;
   } catch (error) {
     console.error('An error occurred while creating data: ', error);
+  }
+};
+
+export const deleteCredential = async (credId: string) => {
+  try {
+    const response = await axios.delete(
+      `/api/SKLandCredential/Delete/${credId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('An error occurred while delete data: ', error);
   }
 };
