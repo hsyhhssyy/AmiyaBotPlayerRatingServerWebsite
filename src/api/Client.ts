@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const createClient = async (friendlyName: string, description:string, iconBase64: string,redirectUri:string) => {
+export const createClientApi = async (friendlyName: string, description:string, iconBase64: string,redirectUri:string) => {
     try {
         const response = await axios.post('/api/account/create-client', {
             FriendlyName: friendlyName,

@@ -2,10 +2,10 @@
   <div>
     <div class="header">
       <h1 class="title">应用管理</h1>
-      <el-button type="primary" @click="showDialog = true">添加应用</el-button>
+      <el-button type="primary" @click="createNewClient">添加应用</el-button>
     </div>
-    <CreateClientDialog v-model="showDialog" @confirm="handleNewClientData" />
-    <CopySecretDialog v-model="showClientSecretDialog" :clientId="clientId" :clientSecret="clientSecret" />
+    <CreateClientDialog ref="createClientDialog" />
+    <CopySecretDialog ref="copySecretDialog" />
 
     <el-dialog v-model="showDeleteDialog">
       <div>
@@ -41,10 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { createClient, listClients } from '../api/Client';
+import { ref, onMounted } from 'vue';
+import { createClientApi, listClients } from '../api/Client';
 import CreateClientDialog from '../components/dialogs/clientManagerDialogs/CreateClientDialog.vue';
 import CopySecretDialog from '../components/dialogs/clientManagerDialogs/CopySecretDialog.vue';
+import { ElMessage } from 'element-plus';
 
 interface Client {
   clientId: string;
@@ -53,40 +54,37 @@ interface Client {
   iconBase64: string;
 }
 
-const showDialog = ref(false);
-const clients = ref<Client[]>([]);
 
-const showClientSecretDialog = ref(false);
-const clientSecret = ref('');
-const clientId = ref('');
+const clients = ref<Client[]>([]);
 
 const showDeleteDialog = ref(false);
 const clientToDelete = ref<Client | null>(null);
 
-watch(showDialog, (newVal: boolean) => {
-  console.log(newVal)
+
+const createClientDialog = ref<InstanceType<typeof CreateClientDialog> | null>(null)
+const copySecretDialog = ref<InstanceType<typeof CopySecretDialog> | null>(null)
+
+onMounted(() => {
+  listClients().then((data) => {
+    clients.value = data;
+  });
 })
 
-listClients().then((data) => {
-  clients.value = data;
-});
+const createNewClient = async () => {
+  var newClient = await createClientDialog.value?.showDialog();
+  if (newClient) {
+    var response = await createClientApi(newClient.friendlyName, newClient.description,
+      newClient.iconBase64, newClient.redirectUri)
 
-const handleNewClientData = (newClient: any) => {
-  //let encodedString: string = encodeURIComponent();
-  createClient(newClient.friendlyName, newClient.description,
-    newClient.iconBase64, newClient.redirectUri).then((response) => {
-      if (response.clientId) {
-        clientSecret.value = response.clientSecret;
-        clientId.value = response.clientId;
-        showClientSecretDialog.value = true;
+    if (response.clientId) {
+      await copySecretDialog.value?.showDialog(response.clientId, response.clientSecret)
 
-        listClients().then((data) => {
-          clients.value = data;
-          showDialog.value = false;
-        });
-      }
-    });
-};
+      listClients().then((data) => {
+        clients.value = data;
+      });
+    }
+  }
+}
 
 const deleteClient = (client: any) => {
   clientToDelete.value = client;
@@ -96,6 +94,7 @@ const deleteClient = (client: any) => {
 const confirmDelete = () => {
   // 这里应调用删除 API
   showDeleteDialog.value = false;
+  ElMessage("抱歉,删除功能还没做")
 };
 
 </script>

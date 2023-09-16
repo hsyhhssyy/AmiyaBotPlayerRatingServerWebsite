@@ -37,18 +37,7 @@
 </template>
   
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-
-// 接收来自父组件的 props
-const props = defineProps<{
-    modelValue: boolean;
-}>();
-
-// 定义向父组件发送事件的 emit 函数
-const emit = defineEmits<{
-    (e: 'confirm', value: any): void;
-    (e: 'update:modelValue', value: boolean): void
-}>();
+import { ref } from 'vue';
 
 const localShowDialog = ref(false);
 
@@ -60,16 +49,6 @@ const localNewClient = ref({
 });
 
 const localImageUrl = ref('');
-
-watch(() => props.modelValue, (newValue: any) => {
-    localShowDialog.value = newValue;
-});
-
-watch(localShowDialog, (newVal: boolean) => {
-    if (props.modelValue != newVal) {
-        emit('update:modelValue', newVal)
-    }
-})
 
 // 处理图片上传前的逻辑
 const beforeAvatarUpload = (file: any) => {
@@ -112,23 +91,34 @@ const beforeAvatarUpload = (file: any) => {
     return true;
 };
 
-const clearInput = ()=>{
-    localNewClient.value.friendlyName=""
-    localNewClient.value.description=""
-    localNewClient.value.iconBase64=""
-    localNewClient.value.redirectUri=""
-}
+let resolveDialog: any = null;
+const clearInput = () => {
+    localNewClient.value.friendlyName = "";
+    localNewClient.value.description = "";
+    localNewClient.value.iconBase64 = "";
+    localNewClient.value.redirectUri = "";
+};
 
 const cancel = () => {
     localShowDialog.value = false;
-    clearInput()
+    resolveDialog && resolveDialog(false);
+    clearInput();
 };
 
 const confirm = () => {
     localShowDialog.value = false;
-    emit('confirm', localNewClient.value);
-    clearInput()
+    resolveDialog && resolveDialog(localNewClient.value);
+    clearInput();
 };
+
+const showDialog = async () => {
+    return new Promise<any>((resolve) => {
+        resolveDialog = resolve;
+        localShowDialog.value = true;
+    });
+};
+
+defineExpose({ showDialog });
 
 </script>
   

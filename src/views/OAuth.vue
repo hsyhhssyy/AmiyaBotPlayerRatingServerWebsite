@@ -35,7 +35,7 @@
         <div v-else>
           <div class="cred-list">
             <CredCard v-for="cred in creds" :key="cred.id" :cred="cred" @click="selectCred(cred)"
-              :is-selected="cred == selectedCred" />
+              :is-selected="cred.id == selectedCred?.id" />
           </div>
           <el-divider></el-divider>
           <el-button type="success" @click="authorize(true)" :disabled="!selectedCred">同意</el-button>
