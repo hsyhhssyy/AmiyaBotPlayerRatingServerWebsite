@@ -1,74 +1,116 @@
+<template>
+    <div class="login-container">
+        <el-card class="login-card">
+            <div slot="header">
+                <h1>森空岛凭据管理中心</h1>
+            </div>
+            <p class="disclaimer">本网站<b style="color: red;">不是</b>鹰角网络下属的官方网站。</p>
+            <el-form>
+                <el-form-item label="邮箱：">
+                    <el-input v-model="email" placeholder="Email"></el-input>
+                </el-form-item>
+                <el-form-item label="密码：">
+                    <el-input type="password" v-model="password" placeholder="Password"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <div class="button-container">
+                        <el-button type="primary" @click="login">登录</el-button>
+                        <el-button type="secondary" @click="register">注册</el-button>
+                    </div>
+                </el-form-item>
+            </el-form>
+            <div class="footer">
+                <p>本网站不是鹰角网络官方网站，而是由爱好者自行开发的工具网站。</p>
+            </div>
+        </el-card>
+    </div>
+</template>
+  
+<script lang="ts">
+import { ref } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
-// 获取 Cred 列表
-export const getCredentials = async () => {
-  try {
-    const response = await axios.get('/api/SKLandCredential/List', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt-token')}`, // 或者其他存储 token 的方式
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('An error occurred while fetching data: ', error);
-  }
+export default {
+    setup() {
+        const router = useRouter();
+        const email = ref('');
+        const password = ref('');
+
+        const login = async () => {
+            try {
+                var response = await axios.post(import.meta.env.VITE_BACKEND_BASE_URL + '/api/account/login', {
+                    email: email.value,
+                    password: password.value,
+                });
+
+                if (response.data.token) {
+                    localStorage.setItem('jwt-token', response.data.token);
+
+                    response = await axios.get(import.meta.env.VITE_BACKEND_BASE_URL + '/api/account/describe');
+
+                    if(response.data.roles){
+                        localStorage.setItem('user-role', response.data.roles[0]);
+                    }
+
+                    router.push('/');
+                }
+            } catch (error) {
+                console.error("An error occurred while logging in:", error);
+            }
+        };
+
+        const register = () => {
+            router.push('/register');
+        };
+
+        return {
+            email,
+            password,
+            login,
+            register,
+        };
+    },
 };
-
-请仿照上面这个ts代码,写出下面三个AspNetCore Action的api
-
-Class的Route是 /api/account/
-
-public class CreateClientModel
-{
-    public string FriendlyName { get; set; }
-    public string IconBase64 { get; set; }
+</script>
+  
+<style scoped>
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Authorize(Roles = "管理员账户,开发者账户")]
-[HttpPost("create-client")]
-public async Task<IActionResult> CreateClient([FromBody] CreateClientModel model)
-{
-    var descriptor = new OpenIddictApplicationDescriptor
-    {
-        ClientId = Guid.NewGuid().ToString("N"),
-        ClientSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
-        // 其他代码...
-    };
-
-    await _oauthManager.CreateAsync(descriptor);
-
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    _dbContext.ClientInfos.Add(new ClientInfo
-    {
-        ClientId = descriptor.ClientId,
-        FriendlyName = model.FriendlyName,
-        IconBase64 = model.IconBase64,
-        UserId = userId
-    });
-    await _dbContext.SaveChangesAsync();
-
-    return Ok(new
-    {
-        ClientId = descriptor.ClientId,
-        FriendlyName = model.FriendlyName,
-        IconBase64 = model.IconBase64
-    });
+.login-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
 }
-[HttpGet("list-clients")]
-public async Task<IActionResult> ListClients()
-{
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    var clients = await _dbContext.ClientInfos.Where(c => c.UserId == userId).ToListAsync();
-    return Ok(clients);
+
+.disclaimer {
+    font-size: 14px;
+    color: gray;
+    text-align: center;
+    margin-bottom: 20px;
 }
-[HttpGet("get-client/{clientId}")]
-public async Task<IActionResult> GetClient(string clientId)
-{
-    var client = await _dbContext.ClientInfos.FirstOrDefaultAsync(c => c.ClientId == clientId);
-    if (client == null)
-    {
-        return NotFound();
-    }
-    return Ok(client);
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
+
+.footer {
+    text-align: center;
+    font-size: 14px;
+    color: gray;
+}
+
+</style>
+
+这是我的Login代码,请将里面的login和describe抽象为一个单独的函数放在一个单独的ts文件中export出来,再在这里修改为引用这个ts, 设置storage的功能放在抽象出的函数内

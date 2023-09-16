@@ -8,6 +8,7 @@ import Register from '../views/Register.vue';
 import DeveloperHome from '../views/DeveloperHome.vue';
 import ClientManagment from '../views/ClientManagment.vue';
 import Logout from '../views/Logout.vue';
+import OAuth from '../views/OAuth.vue';
 
 const routes = [
   {
@@ -59,6 +60,11 @@ const routes = [
     path: '/logout',
     name: 'Logout',
     component: Logout,
+  },
+  {
+    path: '/OAuth',
+    name: 'OAuth',
+    component: OAuth,
   },
 ];
 

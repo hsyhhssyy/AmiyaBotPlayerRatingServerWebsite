@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-export const createClient = async (friendlyName: string, description:string, iconBase64: string) => {
+export const createClient = async (friendlyName: string, description:string, iconBase64: string,redirectUri:string) => {
     try {
         const response = await axios.post('/api/account/create-client', {
             FriendlyName: friendlyName,
             Description:description,
             IconBase64: iconBase64,
+            RedirectUri:redirectUri,
         }, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,

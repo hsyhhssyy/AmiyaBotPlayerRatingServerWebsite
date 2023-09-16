@@ -12,33 +12,25 @@
       </template>
     </el-dialog>
     <div class="cred-list">
-      <el-card v-for="cred in creds" :key="cred.id" class="cred-card">
-        <div class="cred-content">
-          <img :src="cred.avatarUrl" class="avatar" />
-          <div class="text-content">
-            <div class="nickname">{{ cred.nickname }}</div>
-            <div class="uid">{{ cred.id }}</div>
-          </div>
-          <el-button class="delete-icon" @click="deleteCred(cred.id)">
-          <el-icon ><Delete /></el-icon>
-          </el-button>
-        </div>
-      </el-card>
+      <CredCard
+        v-for="cred in creds"
+        :key="cred.id"
+        :cred="cred"
+        :deleteCred="deleteCred"
+      />
     </div>
   </div>
 </template>
   
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import CredCard,{ Cred } from '../components/CredentialCard.vue';
 import { getCredentials, createCredential } from '../api/SKLandCredential';
 
-interface Cred {
-  id: string;
-  nickname: string;
-  avatarUrl: string;
-}
-
 export default defineComponent({
+  components: {
+    CredCard  // 注册 CredCard 组件
+  },
   setup() {
     const showDialog = ref(false);
     const newCred = ref('');
@@ -98,45 +90,6 @@ export default defineComponent({
 .cred-list {
   display: flex;
   flex-wrap: wrap;
-}
-.cred-card {
-  width: 300px;
-  margin: 10px;
-  border-radius: 10px;  /* 添加圆角 */
-  overflow: hidden;  /* 使内部元素不超出圆角 */
-}
-
-.cred-content {
-  display: flex;
-  align-items: center;
-  margin: -10px;
-  position: relative;
-}
-
-.avatar {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-}
-
-.text-content {
-  margin-left: 10px;
-}
-
-.nickname {
-  font-size: 16px;
-  line-height: 1.2;
-}
-
-.uid {
-  font-size: 12px;
-  line-height: 1.2;
-  color: #888;
-}
-
-.delete-icon {
-  cursor: pointer;
-  width: 20px;
 }
 
 </style>

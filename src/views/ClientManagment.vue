@@ -4,47 +4,9 @@
       <h1 class="title">应用管理</h1>
       <el-button type="primary" @click="showDialog = true">添加应用</el-button>
     </div>
-    <el-dialog v-model="showDialog">
-      <div class="dialog-content">
-        <div class="left-content">
-          <label for="avatarUploader">应用图标</label>
-          <el-upload class="avatar-uploader" :show-file-list="false" :auto-upload="false" :on-change="beforeAvatarUpload">
-            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-            <el-icon v-else class="avatar-uploader-icon">
-              <Plus />
-            </el-icon>
-          </el-upload>
-        </div>
-        <div class="right-content flex-container">
-          <div class="input-section">
-            <label for="friendlyName">应用名称</label>
-            <el-input id="friendlyName" v-model="newClient.friendlyName" placeholder="请输入 Friendly Name"></el-input>
-          </div>
-          <div class="input-section flex-item">
-            <label for="clientId">应用描述</label>
-            <el-input id="clientId" type="textarea" v-model="newClient.description" placeholder="请输入应用描述"
-              class="textarea-expand" resize="none" input-style="height: 100%"></el-input>
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <el-button @click="showDialog = false">取消</el-button>
-        <el-button type="primary" @click="addClient">确认添加</el-button>
-      </template>
-    </el-dialog>
-    <el-dialog v-model="showClientSecretDialog">
-      <div>
-        <h3>请复制并保存以下应用Id和Secret</h3>
-        <p>警告：关闭对话框后将无法再次查看该应用对应的Secret。请不要泄露Secret给任何第三方。</p>
-        <label for="clientId">应用Id:</label>
-        <div id="clientId" class="client-secret">{{ clientId }}</div>
-        <label for="clientSecret">应用Secret:</label>
-        <div id="clientSecret" class="client-secret">{{ clientSecret }}</div>
-      </div>
-      <template #footer>
-        <el-button @click="showClientSecretDialog = false">已复制，关闭</el-button>
-      </template>
-    </el-dialog>
+    <CreateClientDialog v-model="showDialog" @confirm="handleNewClientData" />
+    <CopySecretDialog v-model="showClientSecretDialog" :clientId="clientId" :clientSecret="clientSecret" />
+
     <el-dialog v-model="showDeleteDialog">
       <div>
         <h3>确认删除</h3>
@@ -78,9 +40,11 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { createClient, listClients } from '../api/AccountAndClient';
+<script setup lang="ts">
+import { ref, watch } from 'vue';
+import { createClient, listClients } from '../api/Client';
+import CreateClientDialog from '../components/dialogs/clientManagerDialogs/CreateClientDialog.vue';
+import CopySecretDialog from '../components/dialogs/clientManagerDialogs/CopySecretDialog.vue';
 
 interface Client {
   clientId: string;
@@ -89,116 +53,53 @@ interface Client {
   iconBase64: string;
 }
 
-export default defineComponent({
-  setup() {
-    const showDialog = ref(false);
-    const newClient = ref({
-      friendlyName: '',
-      description: '',
-      iconBase64: ''
-    });
-    const clients = ref<Client[]>([]);
-    const imageUrl = ref('');
+const showDialog = ref(false);
+const clients = ref<Client[]>([]);
 
-    const showClientSecretDialog = ref(false);
-    const clientSecret = ref('');
-    const clientId = ref('');
+const showClientSecretDialog = ref(false);
+const clientSecret = ref('');
+const clientId = ref('');
 
-    const showDeleteDialog = ref(false);
-    const clientToDelete = ref<Client | null>(null);
+const showDeleteDialog = ref(false);
+const clientToDelete = ref<Client | null>(null);
 
-    listClients().then((data: Client[]) => {
-      clients.value = data;
-    });
+watch(showDialog, (newVal: boolean) => {
+  console.log(newVal)
+})
 
-    const beforeAvatarUpload = (file: any) => {
-      // const isJPG = file.type === 'image/jpeg';
-      // const isPNG = file.type === 'image/png';
-      // const isLt2M = file.size / 1024 / 1024 < 2;
-
-      // if (!isJPG && !isPNG) {
-      //   ElMessage.error('Avatar picture must be JPG or PNG format!');
-      //   return false;
-      // }
-
-      // if (!isLt2M) {
-      //   ElMessage.error('Avatar picture size cannot exceed 2MB!');
-      //   return false;
-      // }
-
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        const img = new Image();
-        img.src = e.target?.result as string;
-
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 128;
-          canvas.height = 128;
-
-          const ctx = canvas.getContext('2d')!;
-          ctx.drawImage(img, 0, 0, 128, 128);
-
-          const dataURL = canvas.toDataURL();
-          newClient.value.iconBase64 = dataURL.split(',')[1];
-          imageUrl.value = dataURL;
-        };
-      };
-
-      reader.readAsDataURL(file.raw);
-
-      return true;
-    };
-
-
-    const addClient = () => {
-      // 创建新的 Client
-      createClient(newClient.value.friendlyName, newClient.value.description, newClient.value.iconBase64).then((response: any) => {
-        if (response.clientId) {
-          clientSecret.value = response.clientSecret;
-          clientId.value = response.clientId;
-          showClientSecretDialog.value = true;
-
-          listClients().then((data: Client[]) => {
-            clients.value = data;
-            showDialog.value = false;
-          });
-        }
-      });
-    };
-
-    const deleteClient = (client: Client) => {
-      clientToDelete.value = client;
-      showDeleteDialog.value = true;
-    };
-
-    const confirmDelete = () => {
-      // 这里应调用删除 API
-      // 假设有一个 deleteClient() 函数来发送删除请求
-      // ...
-      showDeleteDialog.value = false;
-    };
-
-    return {
-      showDialog,
-      newClient,
-      clients,
-      showClientSecretDialog,
-      clientSecret,
-      addClient,
-      imageUrl,
-      clientId,
-      deleteClient,
-      beforeAvatarUpload,
-      showDeleteDialog,
-      clientToDelete,
-      confirmDelete
-    };
-  },
+listClients().then((data) => {
+  clients.value = data;
 });
+
+const handleNewClientData = (newClient: any) => {
+  //let encodedString: string = encodeURIComponent();
+  createClient(newClient.friendlyName, newClient.description,
+    newClient.iconBase64, newClient.redirectUri).then((response) => {
+      if (response.clientId) {
+        clientSecret.value = response.clientSecret;
+        clientId.value = response.clientId;
+        showClientSecretDialog.value = true;
+
+        listClients().then((data) => {
+          clients.value = data;
+          showDialog.value = false;
+        });
+      }
+    });
+};
+
+const deleteClient = (client: any) => {
+  clientToDelete.value = client;
+  showDeleteDialog.value = true;
+};
+
+const confirmDelete = () => {
+  // 这里应调用删除 API
+  showDeleteDialog.value = false;
+};
+
 </script>
-<!-- Scoped CSS -->
+
 <style scoped>
 /* Header */
 .header {

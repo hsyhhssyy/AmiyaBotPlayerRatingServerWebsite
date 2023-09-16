@@ -28,8 +28,9 @@
   
 <script lang="ts">
 import { ref } from 'vue';
-import axios from 'axios';
+import {ElMessage} from 'element-plus';
 import { useRouter } from 'vue-router';
+import { loginAPI } from '../api/Account';
 
 export default {
     setup() {
@@ -38,25 +39,11 @@ export default {
         const password = ref('');
 
         const login = async () => {
-            try {
-                var response = await axios.post(import.meta.env.VITE_BACKEND_BASE_URL + '/api/account/login', {
-                    email: email.value,
-                    password: password.value,
-                });
-
-                if (response.data.token) {
-                    localStorage.setItem('jwt-token', response.data.token);
-
-                    response = await axios.get(import.meta.env.VITE_BACKEND_BASE_URL + '/api/account/describe');
-
-                    if(response.data.roles){
-                        localStorage.setItem('user-role', response.data.roles[0]);
-                    }
-
-                    router.push('/');
-                }
-            } catch (error) {
-                console.error("An error occurred while logging in:", error);
+            const { success, error } = await loginAPI(email.value, password.value);
+            if (success) {
+                router.push('/');
+            } else {
+                ElMessage.error(error || '登录失败');
             }
         };
 
