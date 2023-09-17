@@ -113,7 +113,7 @@ onMounted(async () => {
 });
 
 const checkAndRefresh = async () => {
-  var ret = isLoggedIn() && getRole() === "普通账户";
+  var ret = isLoggedIn() && (getRole() === "普通账户"||getRole() === "演示普通账户");
   if (ret) {
     creds.value = await getCredentials();
     if (selectedCred.value == null && creds.value.length > 0) {
