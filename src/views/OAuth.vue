@@ -33,13 +33,23 @@
 
         <!-- 登陆后 -->
         <div v-else>
+          <el-alert v-if="!selectedCred" title="请选择您要授权的角色" type="warning" show-icon :closable="false" class="custom-alert"></el-alert>
           <div class="cred-list">
             <CredCard v-for="cred in creds" :key="cred.id" :cred="cred" @click="selectCred(cred)"
               :is-selected="cred.id == selectedCred?.id" />
           </div>
           <el-divider></el-divider>
-          <el-button type="success" @click="authorize(true)" :disabled="!selectedCred">同意</el-button>
-          <el-button type="danger" @click="authorize(false)">拒绝</el-button>
+          <div class="button-row">
+            <div class="left-buttons">
+              <el-button type="success" @click="authorize(true)" :disabled="!selectedCred" class="small-margin" >同意</el-button>
+              <el-button type="danger" @click="authorize(false)" class="small-margin" >拒绝</el-button>
+            </div>
+            <div class="right-buttons">
+              <el-button @click="manageCredentials" class="small-margin" >管理凭据</el-button>
+              <el-button @click="refresh" class="small-margin" >刷新</el-button>
+              <el-button @click="logout" class="small-margin" >登出</el-button>
+            </div>
+          </div>
         </div>
       </el-card>
     </el-main>
@@ -54,7 +64,7 @@ import { getClient } from '../api/Client';
 import { isLoggedIn, getRole } from '../api/Account';
 import CredCard, { Cred } from '../components/CredentialCard.vue';
 import { getCredentials } from '../api/SKLandCredential';
-import { loginAPI } from '../api/Account';
+import { loginAPI, LogoutApi } from '../api/Account';
 
 const appIcon = computed(() => `data:image/png;base64,${clientInfo.value.IconBase64}`);
 const appDescription = computed(() => clientInfo.value.Description);
@@ -106,7 +116,7 @@ const checkAndRefresh = async () => {
   var ret = isLoggedIn() && getRole() === "普通账户";
   if (ret) {
     creds.value = await getCredentials();
-    if(selectedCred.value==null&&creds.value.length>0){
+    if (selectedCred.value == null && creds.value.length > 0) {
       selectedCred.value = creds.value[0]
     }
   }
@@ -133,7 +143,7 @@ const authorize = async (isAuthorized: boolean) => {
   const clientId = new URLSearchParams(window.location.search).get('client-id');
 
   if (isAuthorized) {
-    if(redirectUri==null){
+    if (redirectUri == null) {
       ElMessage.error('错误的应用参数：redirectUri缺失。请联系应用开发者');
       return
     }
@@ -149,6 +159,20 @@ const authorize = async (isAuthorized: boolean) => {
 const openRegisterPage = () => {
   window.open('/register', '_blank');
 };
+
+const manageCredentials = () => {
+  window.open('/regular-home', '_blank');
+};
+
+const refresh = async () => {
+  await checkAndRefresh();
+};
+
+const logout = async () => {
+  LogoutApi();
+  await checkAndRefresh();
+};
+
 </script>
   
 <style scoped>
@@ -167,6 +191,26 @@ const openRegisterPage = () => {
   /* 或者你喜欢的任何其他大小 */
 }
 
+.button-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.left-buttons{
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+.right-buttons{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.small-margin {
+  margin: 0 2px; /* 这将设置左右外边距为 5px */
+}
+
 .description {
   font-size: 0.8em;
   font-size: 12px;
@@ -174,17 +218,11 @@ const openRegisterPage = () => {
   line-height: 1.2;
   color: #888;
   display: -webkit-box;
-  /* 使用旧版 flexbox */
   -webkit-line-clamp: 2;
-  /* 截断文本的行数 */
   -webkit-box-orient: vertical;
-  /* 设置或检索伸缩盒对象的子元素的排列方式 */
   overflow: hidden;
-  /* 隐藏超出的文本 */
   text-overflow: ellipsis;
-  /* 使用省略号（...）表示被修剪的文本 */
   white-space: normal;
-  /* 文本自动换行 */
 }
 
 .oauth-page {
@@ -222,6 +260,5 @@ const openRegisterPage = () => {
   flex-wrap: wrap;
   justify-content: center;
   /* 水平居中 */
-}
-</style>
+}</style>
   

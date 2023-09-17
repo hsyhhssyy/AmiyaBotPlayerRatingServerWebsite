@@ -44,6 +44,11 @@ export const isLoggedIn = (): boolean => {
     return (!!token) && (!!role); // 双重否定将 null 或 undefined 转换为 false，有效值转换为 true
 };
 
+export const LogoutApi = () => {
+    localStorage.removeItem('jwt-token');
+    localStorage.removeItem('user-role');
+};
+
 export const getRole = (): string | null => {
     const role = localStorage.getItem('user-role');
     return role;
