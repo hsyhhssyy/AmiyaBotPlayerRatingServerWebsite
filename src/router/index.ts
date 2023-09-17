@@ -92,11 +92,11 @@ router.beforeEach((to, _from, next) => {
 
   if (token) {
     const role = localStorage.getItem('user-role');
-    if (role === "开发者账户" && to.path !== '/developer-home') {
+    if ( (role === "开发者账户"||role === "演示开发者账户") && to.path !== '/developer-home') {
       next('/developer-home');
     } else if (role === "管理员账户" && to.path !== '/admin-home') {
       next('/admin-home');
-    } else if (role !== "开发者账户" && role !== "管理员账户" && to.path !== '/regular-home') {
+    } else if (role !== "开发者账户" && role !== "管理员账户" && role !== "演示开发者账户" && to.path !== '/regular-home') {
       next('/regular-home');
     } else {
       next();
