@@ -54,7 +54,6 @@ interface Client {
   iconBase64: string;
 }
 
-
 const clients = ref<Client[]>([]);
 
 const showDeleteDialog = ref(false);
