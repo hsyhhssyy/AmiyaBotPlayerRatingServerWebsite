@@ -42,9 +42,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { createClientApi, listClients } from '../api/Client';
-import CreateClientDialog from '../components/dialogs/clientManagerDialogs/CreateClientDialog.vue';
-import CopySecretDialog from '../components/dialogs/clientManagerDialogs/CopySecretDialog.vue';
+import { createClientApi, listClients } from '../../api/Client';
+import CreateClientDialog from '../../components/dialogs/clientManagerDialogs/CreateClientDialog.vue';
+import CopySecretDialog from '../../components/dialogs/clientManagerDialogs/CopySecretDialog.vue';
 import { ElMessage } from 'element-plus';
 
 interface Client {

@@ -20,9 +20,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import CredCard, { Cred } from '../components/CredentialCard.vue';
-import { getCredentials, createCredential, deleteCredential } from '../api/SKLandCredential';
-import DeleteCredDialog from '../components/dialogs/credManagmentDialogs/DeleteCredDialog.vue';
+import CredCard, { Cred } from '../../components/CredentialCard.vue';
+import { getCredentials, createCredential, deleteCredential } from '../../api/SKLandCredential';
+import DeleteCredDialog from '../../components/dialogs/credManagmentDialogs/DeleteCredDialog.vue';
 import { ElMessage } from 'element-plus'
 
 const showAddCredDialog = ref(false);
@@ -64,26 +64,6 @@ const deleteCred = async (credId: string) => {
 };
 </script>
 
-<style scoped>
-.header {
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
-  /* 调整左边距，以与下面的卡片左边框对齐 */
-}
-
-.title {
-  margin: 0;
-  margin-right: 20px;
-  /* 设置标题和按钮之间的间距 */
-}
-
-.cred-list {
-  display: flex;
-  flex-wrap: wrap;
-}
-</style>
-  
 <style scoped>
 .header {
   display: flex;

@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
-import RegularHome from '../views/RegularHome.vue';
-import DeveloperHome from '../views/DeveloperHome.vue';
-import AdminHome from '../views/AdminHome.vue';
-import CredManagement from '../views/CredManagement.vue';
+import RegularHome from '../views/homes/RegularHome.vue';
+import DeveloperHome from '../views/homes/DeveloperHome.vue';
+import AdminHome from '../views/homes/AdminHome.vue';
+import CredManagement from '../views/sklandViews/CredManagement.vue';
 import Feature2 from '../views/Feature2.vue';
 import Authorize from '../views/Authorize.vue';
 import Register from '../views/Register.vue';
-import ClientManagment from '../views/ClientManagment.vue';
+import ClientManagment from '../views/developerViews/ClientManagment.vue';
 import Logout from '../views/Logout.vue';
 import OAuth from '../views/OAuth.vue';
+import MAAConnectionManagment from '../views/maaViews/MAAConnectionManagment.vue';
 
 const routes = [
   {
@@ -32,8 +33,8 @@ const routes = [
         component: CredManagement,
       },
       {
-        path: 'feature2',
-        component: Feature2,
+        path: 'maa-managment',
+        component: MAAConnectionManagment,
       },
     ],
   },

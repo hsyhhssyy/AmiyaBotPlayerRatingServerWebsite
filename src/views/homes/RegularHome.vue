@@ -9,10 +9,32 @@
     <el-container class="aside-container">
       <el-aside width="200px">
         <el-menu :router="true" class="aside-menu">
-          <el-menu-item index="/regular-home/cred-management">管理凭据</el-menu-item>
-          <el-menu-item index="/regular-home/feature2">我的角色</el-menu-item>
-          <el-menu-item index="/regular-home/feature2">管理授权</el-menu-item>
-          <el-menu-item index="/logout" class="logout-item">登出</el-menu-item>
+          <el-menu-item index="/regular-home/cred-management">
+            <el-icon>
+              <Key />
+            </el-icon>
+            <span>管理凭据</span>
+          </el-menu-item>
+          <el-sub-menu index="1">
+            <template #title>
+              <el-icon>
+                <Iphone />
+              </el-icon>
+              <span>MAA管理</span>
+            </template>
+            <el-menu-item index="/regular-home/maa-managment">
+              <el-icon>
+                <Connection />
+              </el-icon>
+              <span>连接管理</span>
+            </el-menu-item>
+          </el-sub-menu>
+          <el-menu-item index="/logout" class="logout-item">
+            <el-icon>
+              <SwitchButton />
+            </el-icon>
+            <span>登出</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <el-main>
@@ -64,6 +86,4 @@ export default defineComponent({
 .logout-item {
   margin-top: auto;
 }
-
-
 </style>
