@@ -4,7 +4,7 @@
       <el-card class="box-card">
 
         <div slot="header">
-          <h1 style="text-align: center;">森空岛凭据管理中心</h1>
+          <h1 style="text-align: center;">兔兔用户中心</h1>
         </div>
         <div class="app-info">
           <el-avatar :src="appIcon" size="large"></el-avatar>

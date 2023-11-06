@@ -2,7 +2,7 @@
   <el-container>
     <el-header>
       <div class="header-content">
-        <div class="logo">森空岛凭据管理中心-开发者中心</div>
+        <div class="logo">兔兔用户中心-开发者中心</div>
         <div class="user-avatar"></div>
       </div>
     </el-header>

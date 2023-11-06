@@ -1,11 +1,8 @@
 <template>
   <div>
-    <div class="header">
-      <h1 class="title">连接管理</h1>
-      <el-button type="primary" @click="addConnection">创建连接</el-button>
-    </div>
     <div class="connection-list">
-      <ConnectionCard v-for="connection in connections" :key="connection.id" :connection="connection" :delete-connection="deleteConnectionById"/>
+      <ConnectionCard v-for="connection in connections" :key="connection.id" :connection="connection" 
+        :delete-connection="deleteConnectionById" @click="cardClick(connection)"/>
     </div>
     <AddConnectionDialog ref="addConnectionDialog" />
   </div>
@@ -17,17 +14,29 @@ import ConnectionCard, { MAAConnection } from '../../components/cards/maa/MAACon
 import { listAllConnections, initializeConnection, deleteConnection } from '../../api/MAAConnection';
 import AddConnectionDialog from '../../components/dialogs/maaDialogs/AddConnectionDialog.vue';
 import { ElMessage } from 'element-plus'
-
-
+import { onMounted, onBeforeUnmount } from 'vue';
+import emitter from '@src/emitter';
+import { useRouter } from 'vue-router'
 
 const connections: Ref<MAAConnection[]> = ref([]);
 const addConnectionDialog = ref<InstanceType<typeof AddConnectionDialog> | null>(null)
+const router = useRouter()
 
 // 初始化获取连接列表
 listAllConnections().then((data) => {
   connections.value = data;
 }).catch((error) => {
   ElMessage.error(`连接列表获取失败: ${error.message}`);
+});
+
+onMounted(() => {
+  // 在组件挂载后开始监听事件
+  emitter.on('MAAConnectionManagmentToolbar-addConnection', addConnection);
+});
+
+onBeforeUnmount(() => {
+  // 在组件卸载前移除事件监听
+  emitter.off('MAAConnectionManagmentToolbar-addConnection', addConnection);
 });
 
 const addConnection = async () => {
@@ -50,6 +59,9 @@ const addConnection = async () => {
   }
 };
 
+const cardClick = (connection: any) => {
+  router.push({ name: '任务列表', params: { connectionId: connection.id } });
+};
 
 const deleteConnectionById = async (id: string) => {
   try {

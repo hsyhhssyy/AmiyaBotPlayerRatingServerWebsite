@@ -11,6 +11,8 @@ import ClientManagment from '../views/developerViews/ClientManagment.vue';
 import Logout from '../views/Logout.vue';
 import OAuth from '../views/OAuth.vue';
 import MAAConnectionManagment from '../views/maaViews/MAAConnectionManagment.vue';
+import MAAConnectionManagmentToolbar from '@src/components/toolbars/MAAConnectionManagmentToolbar.vue';
+import MAATaskList from '@src/views/maaViews/MAATaskList.vue';
 
 const routes = [
   {
@@ -25,16 +27,30 @@ const routes = [
   },
   {
     path: '/regular-home',
-    name: 'regular-home',
+    name: '首页',
     component: RegularHome,
     children: [
       {
         path: 'cred-management',
+        name: '凭据管理',
         component: CredManagement,
       },
       {
-        path: 'maa-managment',
-        component: MAAConnectionManagment,
+        path: 'maa-management',
+        name: 'MAA连接',
+        meta: { 
+          toolbarComponent: MAAConnectionManagmentToolbar 
+        },
+        component: MAAConnectionManagment
+      },      
+      {
+        path: 'maa-management/:connectionId/task-list',
+        name: '任务列表',
+        component: MAATaskList,
+        meta: { 
+          parent: 'MAA连接' 
+        },
+        props: true
       },
     ],
   },

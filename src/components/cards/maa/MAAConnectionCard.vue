@@ -9,7 +9,7 @@
           </el-icon>
         </el-button>
       </div>
-      <img v-if="connection.screenshotUrl" :src="connection.screenshotUrl" class="screenshot" />
+      <img v-if="connection.screenshot" :src="`data:image/jpeg;base64,${connection.screenshot}`" class="screenshot" />
       <div v-else class="icon-container">
         <el-icon class="default-icon">
           <Picture />
@@ -20,13 +20,15 @@
 </template>
   
 <script setup lang="ts">
+import { onMounted } from "vue";
+import { getLastThumbnail } from "../../../api/MAATask";
 
 export interface MAAConnection {
   id: string;
   deviceIdentity?: string;
   userIdentity: string;
   name: string;
-  screenshotUrl?: string;
+  screenshot?: string;
 }
 
 const props = defineProps<{
@@ -34,6 +36,13 @@ const props = defineProps<{
   deleteConnection?: (id: string) => void;
   isSelected?: boolean;
 }>();
+
+onMounted(async () => {
+  var imgBase64 = await getLastThumbnail(props.connection.id)
+  if (imgBase64) {
+      props.connection.screenshot = imgBase64;
+  }
+});
 
 const { connection, deleteConnection, isSelected = false } = props;
 </script>
