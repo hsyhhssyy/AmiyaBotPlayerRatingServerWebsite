@@ -61,12 +61,12 @@ const route = useRoute();
 const router = useRouter();
 
 const sidemenuMapping = {
-  '森空岛凭据': {
-    icon: 'Key',
-    items: [
-      { name: '凭据管理', path: '/regular-home/cred-management', icon: 'Connection' }
-    ]
-  },
+  // '森空岛凭据': {
+  //   icon: 'Key',
+  //   items: [
+  //     { name: '凭据管理', path: '/regular-home/cred-management', icon: 'Connection' }
+  //   ]
+  // },
   'MAA管理': {
     icon: 'Iphone',
     items: [
@@ -170,11 +170,12 @@ const breadcrumbList = computed(() => {
 .app-container {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .breadcrumb-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding-top: 20px;
 }
@@ -186,6 +187,13 @@ const breadcrumbList = computed(() => {
   padding-left: 30px;
 }
 
+.toolbar-container {
+  margin-left: 20px;
+}
+
 .logout-item {
   margin-top: auto;
-}</style>
+}
+
+
+</style>

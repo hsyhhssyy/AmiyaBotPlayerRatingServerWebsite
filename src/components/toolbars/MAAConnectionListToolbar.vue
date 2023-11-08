@@ -8,7 +8,7 @@
 import emitter from '@src/emitter'
 
 const addConnection = ()=>{
-    emitter.emit('MAAConnectionManagmentToolbar-addConnection', { message: 'New connection added!' });
+    emitter.emit('MAAConnectionListToolbar-addConnection', { message: 'New connection added!' });
 }
 
 </script>

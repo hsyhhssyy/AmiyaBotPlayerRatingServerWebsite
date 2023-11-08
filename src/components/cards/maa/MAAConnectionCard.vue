@@ -21,7 +21,7 @@
   
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { getLastThumbnail } from "../../../api/MAATask";
+import { getConnectionThumbnail } from "@src/api/MAAConnection";
 
 export interface MAAConnection {
   id: string;
@@ -38,7 +38,7 @@ const props = defineProps<{
 }>();
 
 onMounted(async () => {
-  var imgBase64 = await getLastThumbnail(props.connection.id)
+  var imgBase64 = await getConnectionThumbnail(props.connection.id)
   if (imgBase64) {
       props.connection.screenshot = imgBase64;
   }

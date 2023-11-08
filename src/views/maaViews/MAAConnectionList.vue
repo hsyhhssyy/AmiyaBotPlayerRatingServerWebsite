@@ -31,12 +31,12 @@ listAllConnections().then((data) => {
 
 onMounted(() => {
   // 在组件挂载后开始监听事件
-  emitter.on('MAAConnectionManagmentToolbar-addConnection', addConnection);
+  emitter.on('MAAConnectionListToolbar-addConnection', addConnection);
 });
 
 onBeforeUnmount(() => {
   // 在组件卸载前移除事件监听
-  emitter.off('MAAConnectionManagmentToolbar-addConnection', addConnection);
+  emitter.off('MAAConnectionListToolbar-addConnection', addConnection);
 });
 
 const addConnection = async () => {
@@ -75,16 +75,6 @@ const deleteConnectionById = async (id: string) => {
 </script>
   
 <style scoped>
-.header {
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
-}
-
-.title {
-  margin: 0;
-  margin-right: 20px;
-}
 
 .connection-list {
   display: flex;

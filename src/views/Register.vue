@@ -4,7 +4,7 @@
             <h1>兔兔用户中心-用户注册</h1>
             <el-radio-group class="toggle-group" v-model="accountType">
                 <el-radio-button label="普通账户">普通账户</el-radio-button>
-                <el-radio-button label="开发者账户">开发者账户</el-radio-button>
+                <el-radio-button label="开发者账户" v-if="false">开发者账户</el-radio-button>
             </el-radio-group>
 
             <p></p>

@@ -10,8 +10,9 @@ import Register from '../views/Register.vue';
 import ClientManagment from '../views/developerViews/ClientManagment.vue';
 import Logout from '../views/Logout.vue';
 import OAuth from '../views/OAuth.vue';
-import MAAConnectionManagment from '../views/maaViews/MAAConnectionManagment.vue';
-import MAAConnectionManagmentToolbar from '@src/components/toolbars/MAAConnectionManagmentToolbar.vue';
+import MAAConnectionList from '../views/maaViews/MAAConnectionList.vue';
+import MAAConnectionListToolbar from '@src/components/toolbars/MAAConnectionListToolbar.vue';
+import MAATaskListToolbar from '@src/components/toolbars/MAATaskListToolbar.vue';
 import MAATaskList from '@src/views/maaViews/MAATaskList.vue';
 
 const routes = [
@@ -39,16 +40,17 @@ const routes = [
         path: 'maa-management',
         name: 'MAA连接',
         meta: { 
-          toolbarComponent: MAAConnectionManagmentToolbar 
+          toolbarComponent: MAAConnectionListToolbar 
         },
-        component: MAAConnectionManagment
+        component: MAAConnectionList
       },      
       {
         path: 'maa-management/:connectionId/task-list',
         name: '任务列表',
         component: MAATaskList,
         meta: { 
-          parent: 'MAA连接' 
+          parent: 'MAA连接',
+          toolbarComponent: MAATaskListToolbar 
         },
         props: true
       },
