@@ -22,7 +22,7 @@
             value="LinkStart-ReclamationAlgorithm"></el-option>
         </el-select>
       </div>
-      <div class="dialog-row" v-if="taskType === 'LinkStart-Combat'">
+      <div class="dialog-row" v-if="false">
         <label for="linkStartCombatStage" class="dialog-label">战斗关卡:</label>
         <el-select v-model="linkStartCombatStage" id="linkStartCombatStage" placeholder="请选择关卡">
           <el-option label="1-7" value="1-7"></el-option>
@@ -76,9 +76,6 @@ const submitForm = () => {
   }
 
   switch(taskType.value){
-    case 'LinkStart-Combat':
-      dataToReturn.parameters = linkStartCombatStage.value;
-      break;
     case 'Settings-ConnectionAddress':
       dataToReturn.parameters = settingsConnectionAddressStr.value;
       break;
