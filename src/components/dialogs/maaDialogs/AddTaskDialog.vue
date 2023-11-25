@@ -1,6 +1,15 @@
 <template>
-  <el-dialog title="任务设置" v-model="dialogVisible" :close-on-click-modal="false" width="700px">
+  <el-dialog title="任务设置" v-model="dialogVisible" :close-on-click-modal="false" width="800px">
     <div class="dialog-content">
+      <div class="dialog-row">
+        <label for="togglePeriodic" class="dialog-label">周期重复:</label>
+        <el-switch v-model="isPeriodic" id="togglePeriodic"></el-switch>
+      </div>
+      <div class="dialog-row" v-if="isPeriodic">
+        <label for="settingsTaskName" class="dialog-label">任务名称:</label>
+        <el-input v-model="settingsTaskName" id="settingsTaskName"
+          placeholder="请输入任务名称"></el-input>
+      </div>
       <div class="dialog-row">
         <label for="taskType" class="dialog-label">任务类型:</label>
         <el-select v-model="taskType" id="taskType" placeholder="请选择" @change="handleTaskTypeChange">
@@ -34,7 +43,34 @@
       </div>
       <div class="dialog-row" v-if="taskType === 'Settings-ConnectionAddress'">
         <label for="settingsConnectionAddressStr" class="dialog-label">连接地址:</label>
-        <el-input v-model="settingsConnectionAddressStr" id="settingsConnectionAddressStr" placeholder="请输入连接地址"></el-input>
+        <el-input v-model="settingsConnectionAddressStr" id="settingsConnectionAddressStr"
+          placeholder="请输入连接地址"></el-input>
+      </div>
+
+      <div class="dialog-row" v-if="isPeriodic">
+        <label for="startTime" class="dialog-label">开始时间:</label>
+        <el-config-provider :locale="zhCn">
+          <el-date-picker v-model="startTime" type="datetime" placeholder="从特定时间开始重复" id="startTime"
+            format="YYYY-MM-DD HH:mm:ss">
+          </el-date-picker>
+        </el-config-provider>
+      </div>      
+      <div class="dialog-row" v-if="isPeriodic">
+        <label for="toggleNeverStop" class="dialog-label">永不停止:</label>
+        <el-switch v-model="neverStop" id="toggleNeverStop"></el-switch>
+      </div>
+      <div class="dialog-row" v-if="isPeriodic && !neverStop">
+        <label for="endTime" class="dialog-label">结束时间:</label>
+        <el-config-provider :locale="zhCn">
+          <el-date-picker v-model="endTime" type="datetime" placeholder="到特定时间为止" id="endTime"
+            format="YYYY-MM-DD HH:mm:ss">
+          </el-date-picker>
+        </el-config-provider>
+      </div>
+      <div class="dialog-row" v-if="isPeriodic">
+        <label for="endTime" class="dialog-label">周期:</label>
+        <cron-element-plus v-model="cronExpression" :button-props="{ type: 'primary' }" locale="cn"
+          :custom-locale="cn.dict" @error="cronError = $event" />
       </div>
     </div>
     <template #footer>
@@ -46,15 +82,33 @@
   
 <script setup lang="ts">
 import { ref } from 'vue';
+import '@vue-js-cron/element-plus/dist/element-plus.css';
+import { CronElementPlus } from '@vue-js-cron/element-plus';
+import { getLocale } from '@vue-js-cron/core';
+import zhCn from 'element-plus/es/locale/lang/zh-cn';
+import { ElDatePicker } from 'element-plus';
 
+const cn = getLocale('zh-CN');
 const dialogVisible = ref(false);
 const taskType = ref('');
 const linkStartCombatStage = ref('');
+const settingsTaskName = ref('');
 const settingsConnectionAddressStr = ref('');
+const cronExpression = ref('* * * * *');
+const cronError = ref('');
+const isPeriodic = ref(false);
+const startTime = ref();
+const endTime = ref();
+const neverStop = ref();
 
-interface CreateTaskData{
+interface CreateTaskData {
+  name:string;
   taskType: string;
-  parameters:string;
+  parameters: string;
+  isPeriodic: boolean;
+  startTime: Date;
+  endTime: Date;
+  cronExpression: string;
 }
 
 // 处理任务类型变化的函数
@@ -63,19 +117,24 @@ const handleTaskTypeChange = (value: string) => {
 }
 
 const cancel = () => {
-    dialogVisible.value = false;
-    resolveDialog && resolveDialog(null);
-  };
+  dialogVisible.value = false;
+  resolveDialog && resolveDialog(null);
+};
 
 // 表单提交的函数
-const submitForm = () => {  
+const submitForm = () => {
 
   const dataToReturn: CreateTaskData = {
+    name: settingsTaskName.value,
     taskType: taskType.value,
-    parameters: ''
+    parameters: '',
+    isPeriodic: isPeriodic.value,
+    startTime: startTime.value,
+    endTime: endTime.value,
+    cronExpression: cronExpression.value,
   }
 
-  switch(taskType.value){
+  switch (taskType.value) {
     case 'Settings-ConnectionAddress':
       dataToReturn.parameters = settingsConnectionAddressStr.value;
       break;
@@ -87,23 +146,23 @@ const submitForm = () => {
     dialogVisible.value = false
     resolveDialog && resolveDialog([dataToReturn]);
   } else {
-    
+
   }
 }
 
 // 假设的表单验证函数
-const validateForm = (data:CreateTaskData): boolean => {
-  if(!data.taskType){
+const validateForm = (data: CreateTaskData): boolean => {
+  if (!data.taskType) {
     return false;
   }
   return true
 }
 
 // 用于解析对话框关闭时的Promise
-let resolveDialog: ((value: CreateTaskData[] | PromiseLike<CreateTaskData[]> | null ) => void) | null = null;
+let resolveDialog: ((value: CreateTaskData[] | PromiseLike<CreateTaskData[]> | null) => void) | null = null;
 
 const showDialog = () => {
-  return new Promise<CreateTaskData[]|null>((resolve) => {
+  return new Promise<CreateTaskData[] | null>((resolve) => {
     resolveDialog = resolve;
     dialogVisible.value = true;
   });
@@ -135,7 +194,7 @@ defineExpose({ showDialog });
 }
 
 .el-input,
-.el-select{
+.el-select {
   margin-right: 10px;
   width: 100%;
 }
@@ -143,5 +202,6 @@ defineExpose({ showDialog });
 .el-button {
   margin-right: 10px;
 }
+
 /* 根据实际需要调整样式 */
 </style>

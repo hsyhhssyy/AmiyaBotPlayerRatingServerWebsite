@@ -10,23 +10,12 @@
         :value="item.value">
       </el-option>
     </el-select>
-
-    <!-- 周期任务下拉列表 -->
-    <el-select v-model="selectedTask" placeholder="请选择周期任务" 
-      :disabled="!selectedMaa" @change="handleRepetitiveTaskChange"  class="filter-dropdown"
-      clearable>
-      <el-option
-        v-for="task in taskOptions"
-        :key="task.value"
-        :label="task.label"
-        :value="task.value">
-      </el-option>
-    </el-select>
   </div>
 
     <el-table :data="tasks" stripe>
       <el-table-column prop="order" label="序号" sortable min-width="6.25%"></el-table-column>
       <el-table-column prop="id" label="任务Id" sortable min-width="31.25%" v-if="false"></el-table-column>
+      <el-table-column prop="name" label="任务名称" sortable min-width="15.625%"></el-table-column>
       <el-table-column prop="type" label="任务类型" min-width="15.625%">
       <template #default="{ row }">
         {{ row.type }}
@@ -35,29 +24,30 @@
         </el-icon>
       </template>
     </el-table-column>
-      <el-table-column prop="createdAt" label="发出时间" sortable min-width="15.625%">
+      <el-table-column prop="availableTo" label="开始时间" sortable min-width="15.625%">
         <template #default="{ row }">
-          {{ formatDate(row.createdAt) }}
+          {{ formatDate(row.availableFrom) }}
         </template>
       </el-table-column>
-      <el-table-column prop="completedAt" label="完成时间" sortable min-width="15.625%">
+      <el-table-column prop="availableTo" label="结束时间" sortable min-width="15.625%">
         <template #default="{ row }">
-          <div v-if="row.isCompleted == true">
-            {{ formatDate(row.completedAt) }}
+          <div v-if="row.availableTo != null">
+            {{ formatDate(row.availableTo) }}
+          </div>
+          <div v-if="row.availableTo == null">
+            永不停止
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="result" label="执行结果" min-width="7.8125%">
+      <el-table-column prop="availableTo" label="重复周期" sortable min-width="15.625%">
         <template #default="{ row }">
-          <el-tag :type="row.isCompleted == true ? 'success' : 'danger'">{{ row.isCompleted == true ? '成功' : '进行中'
-          }}</el-tag>
+            {{row.utcCronString}}
         </template>
       </el-table-column>
       <el-table-column label="查看结果" min-width="7.8125%">
         <template #default="{ row }">
-          <div v-if="row.isCompleted == true">
-            <el-button type="text" @click="openResult(row.id)">查看结果</el-button>
-          </div>
+            <el-button type="text" @click="openResult(row.id)">最近一次</el-button>
+            <el-button type="text" @click="openResult(row.id)">全部任务</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -78,14 +68,13 @@ import emitter from '@src/emitter';
 import AddTaskDialog from '../../components/dialogs/maaDialogs/AddTaskDialog.vue';
 import TaskImageViewerDialog from '../../components/dialogs/maaDialogs/TaskImageViewerDialog.vue';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
-import { ElTableColumn, ElTag, ElButton, ElPagination } from 'element-plus';
-import { listAllConnections, listTasks, addTask ,listRepetitiveTasks,addRepetitiveTask} from "@src/api/MAAConnection"
+import { ElTableColumn, ElButton, ElPagination } from 'element-plus';
+import { listAllConnections, addTask ,listRepetitiveTasks,addRepetitiveTask} from "@src/api/MAAConnection"
 
 const route = useRoute();
 
 // 筛选条件:
 const selectedMaa  = ref("");
-const selectedTask = ref<string|null>("");
 
 const tasks = ref([]);
 const total = ref(0);
@@ -98,9 +87,6 @@ const taskImageViewerDialog = ref<InstanceType<typeof TaskImageViewerDialog> | n
 var connectionId: string = Array.isArray(route.params.connectionId)
   ? route.params.connectionId[0]
   : route.params.connectionId;
-var repetitiveTaskId: string | null = Array.isArray(route.params.repetitiveTaskId)
-  ? route.params.repetitiveTaskId[0]
-  : route.params.repetitiveTaskId;
 var connectionReadOnly: boolean = connectionId!=null;
 
 // MAA连接选项
@@ -110,30 +96,10 @@ const maaOptions = ref([
   // 更多MAA选项...
 ]);
 
-// 所有可能的周期任务选项
-const taskOptions = ref([
-  { value: 'task1', label: '任务 1'},
-  { value: 'task2', label: '任务 2'},
-  { value: 'task3', label: '任务 3'},
-  // 更多任务选项...
-]);
-
 const handleMaaChange = async () => {
 
   //将所选id赋值给connectionId
-  connectionId = selectedMaa.value
-
-  selectedTask.value = null; // 当MAA变更时，重置周期任务选择
-
-  //立即刷新一次
-  await fetchTasks(currentPage.value);
-}
-
-const handleRepetitiveTaskChange = async () => {
-
-  //将所选id赋值给repetitiveTaskId
-  repetitiveTaskId = selectedTask.value
-
+  connectionId = selectedMaa.value;
   //立即刷新一次
   await fetchTasks(currentPage.value);
 }
@@ -188,39 +154,19 @@ const addTaskAction = async () => {
     }
   });
 
-  await fetchTasks(currentPage.value, addedTask);
+  await fetchTasks(currentPage.value);
 }
 
-const fetchTasks = async (page: number, addedTask: any[] = []) => {
+const fetchTasks = async (_page: number) => {
   try {
-    const response = await listTasks(connectionId, repetitiveTaskId, page - 1, perPage.value);
-
-    if (page == 1) {
-      //判断addedTask是不是在列表中，如果不在则插入到第一个，并删掉最后一个
-      addedTask.forEach(element => {
-        const index = response.tasks.findIndex((task: any) => task.id == element.id)
-        if (index == -1) {
-          response.tasks.unshift(element)
-          response.tasks.pop()
-        }
-      });
-    }
-
-    tasks.value = response.tasks;
+    const response = await await listRepetitiveTasks(connectionId)
+    
+    tasks.value = response.repetitiveTasks;
     total.value = response.total;
     currentPage.value = response.page + 1;
 
     tasks.value.forEach((task: any, index: number) => {
       task.order = (response.page) * perPage.value + index + 1;
-    });
-
-    //获取任务用来填充taskOptions
-    const repetitiveTask = await listRepetitiveTasks(connectionId)
-    taskOptions.value = repetitiveTask.repetitiveTasks.map((task: any) => {
-      return {
-        value: task.id,
-        label: task.name
-      };
     });
 
   } catch (error) {

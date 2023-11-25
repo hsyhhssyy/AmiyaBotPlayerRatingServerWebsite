@@ -75,9 +75,10 @@ export const deleteConnection = async (id: string) => {
     }
 };
 
-export const listTasks = async (connId: string,page: number,size:number) => {
+export const listTasks = async (connId: string, repetitiveTaskId:string|null, page: number,size:number) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${connId}/maaTasks?page=${page}&size=${size}`, {
+        const queryUrl = `${BASE_URL}/${connId}/maaTasks?page=${page}&size=${size}`+(repetitiveTaskId?`&repetitiveTaskId=${repetitiveTaskId}`:'');
+        const response = await axios.get(queryUrl, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
             },
@@ -136,6 +137,47 @@ export const addTask = async (connId: string,type: string,parameters:string) => 
     }
 };
 
+export const listRepetitiveTasks = async (connId: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/${connId}/maaRepetitiveTasks`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`发生异常(id=${connId}): `, error);
+        throw error;
+    }
+}
+
+export const addRepetitiveTask = async (connId: string,
+    name: string,
+    type: string,
+    parameters: string,
+    utcCronString: string, availableFrom: string, availableTo: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/${connId}/maaRepetitiveTasks`,
+            {
+                name: name,
+                type: type,
+                parameters: parameters,
+                utcCronString: utcCronString,
+                AvailableFrom: availableFrom,
+                AvailableTo: availableTo,
+            }
+            , {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+                },
+            });
+        return response.data;
+    } catch (error) {
+        console.error(`发生异常(id=${connId}): `, error);
+        throw error;
+    }
+};
+
 export default {
     listAllConnections,
     getConnection,
@@ -145,4 +187,6 @@ export default {
     listTasks,
     getConnectionThumbnail,
     getTaskImage,
+    listRepetitiveTasks,
+    addRepetitiveTask
 };

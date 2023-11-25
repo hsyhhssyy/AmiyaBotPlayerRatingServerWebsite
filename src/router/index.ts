@@ -14,6 +14,7 @@ import MAAConnectionList from '../views/maaViews/MAAConnectionList.vue';
 import MAAConnectionListToolbar from '@src/components/toolbars/MAAConnectionListToolbar.vue';
 import MAATaskListToolbar from '@src/components/toolbars/MAATaskListToolbar.vue';
 import MAATaskList from '@src/views/maaViews/MAATaskList.vue';
+import MAARepetitiveTaskList from '@src/views/maaViews/MAARepetitiveTaskList.vue';
 
 const routes = [
   {
@@ -43,6 +44,14 @@ const routes = [
           toolbarComponent: MAAConnectionListToolbar 
         },
         component: MAAConnectionList
+      },   
+      {
+        path: 'maa-repetitive-task-list',
+        name: '定时任务',
+        component: MAARepetitiveTaskList,
+        meta: {
+          toolbarComponent: MAATaskListToolbar 
+        }
       },      
       {
         path: 'maa-management/:connectionId/task-list',

@@ -70,8 +70,8 @@ const sidemenuMapping = {
   'MAA管理': {
     icon: 'Iphone',
     items: [
-      { name: 'MAA连接', path: '/regular-home/maa-management', icon: 'Connection' }
-
+      { name: 'MAA连接', path: '/regular-home/maa-management', icon: 'Connection' },
+      { name: '定时任务', path: '/regular-home/maa-repetitive-task-list', icon: 'timer' }
     ]
   },
 };
