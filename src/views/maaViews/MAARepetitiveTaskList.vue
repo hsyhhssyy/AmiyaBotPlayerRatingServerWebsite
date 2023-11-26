@@ -41,18 +41,21 @@
       </el-table-column>
       <el-table-column prop="availableTo" label="重复周期" sortable min-width="15.625%">
         <template #default="{ row }">
-            {{row.utcCronString}}
+          {{ formatCron(row.utcCronString) }}
         </template>
       </el-table-column>
-      <el-table-column label="查看结果" min-width="7.8125%">
+      <el-table-column label="操作" min-width="30%">
         <template #default="{ row }">
-            <el-button type="text" @click="openResult(row.id)">最近一次</el-button>
-            <el-button type="text" @click="openResult(row.id)">全部任务</el-button>
+            <el-button type="primary" @click="openResult(row.id)">最近结果</el-button>
+            <el-button type="default" @click="allResult(row.id)">全部结果</el-button>
+            <el-button type="warning" @click="openResult(row.id)" v-if="row.isPaused!=true">暂停</el-button>
+            <el-button type="success" @click="openResult(row.id)" v-if="row.isPaused==true">继续</el-button>
+            <el-button type="danger" @click="openResult(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
         <el-config-provider :locale="zhCn">
-    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+    <el-pagination class="pagination" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
       :page-sizes="[10, 20, 50, 100]" :page-size="perPage" layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination></el-config-provider>
@@ -63,15 +66,17 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute,useRouter } from 'vue-router';
 import emitter from '@src/emitter';
 import AddTaskDialog from '../../components/dialogs/maaDialogs/AddTaskDialog.vue';
 import TaskImageViewerDialog from '../../components/dialogs/maaDialogs/TaskImageViewerDialog.vue';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { ElTableColumn, ElButton, ElPagination } from 'element-plus';
 import { listAllConnections, addTask ,listRepetitiveTasks,addRepetitiveTask} from "@src/api/MAAConnection"
+import cronstrue from 'cronstrue/i18n';
 
 const route = useRoute();
+const router = useRouter()
 
 // 筛选条件:
 const selectedMaa  = ref("");
@@ -179,6 +184,11 @@ const formatDate = (dateString: string) => {
   return date.toLocaleString();
 };
 
+const formatCron = (cronString: string) => {
+  let text = cronstrue.toString(cronString, { locale: "zh_CN" });
+  return text;
+};
+
 const handleSizeChange = (newSize: number) => {
   perPage.value = newSize;
   fetchTasks(1); // 重新获取第一页数据
@@ -190,6 +200,10 @@ const handleCurrentChange = (newPage: number) => {
 
 const openResult = async (id: string) => {
   await taskImageViewerDialog.value?.showDialog(connectionId, id);
+};
+
+const allResult = (id: string) => {
+  router.push({ name: '定时任务执行结果', params: { connectionId: connectionId,repetitiveTaskId:id } });
 };
 
 
@@ -216,71 +230,9 @@ const openResult = async (id: string) => {
   margin-right: 10px;
 }
 
-
-.data-table {
-  /* 数据表格的特定样式 */
-}
-
-.el-table {
-  width: 100%;
-  max-width: 100%;
-  /* 确保即使屏幕缩放，也能占满 */
-  --el-border-color: #e4e7ed;
-  --el-border-style: solid;
-  --el-border-width: 1px;
-}
-
-.el-table .el-table__header-wrapper {
-  background-color: #f5f7fa;
-}
-
-.el-table .el-table__row:hover {
-  background-color: #ecf5ff;
-}
-
-.el-tag {
-  cursor: pointer;
-}
-
-.el-pagination {
+.pagination {
   margin-top: 20px;
   text-align: center;
-}
-
-.el-button {
-  color: #409eff;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* 调整分页器大小选择器和跳转器的样式 */
-.el-pagination .el-pagination__sizes,
-.el-pagination .el-pagination__jump {
-  display: flex;
-  align-items: center;
-}
-
-/* 样式调整，以便看起来更加紧凑 */
-.el-pagination .el-pagination__sizes .el-select {
-  width: auto;
-}
-
-.el-pagination .el-pagination__jump {
-  margin-left: 15px;
-}
-
-/* 设置表格内边距和字体大小 */
-.el-table td,
-.el-table th {
-  padding: 8px 0;
-  font-size: 14px;
-}
-
-/* 修正按钮的高度，以便和文本对齐 */
-.el-button {
-  height: auto;
-  padding: 0;
-  line-height: inherit;
 }
 </style>
 

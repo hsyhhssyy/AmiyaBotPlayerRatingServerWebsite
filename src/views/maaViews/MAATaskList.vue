@@ -13,7 +13,7 @@
 
     <!-- 周期任务下拉列表 -->
     <el-select v-model="selectedTask" placeholder="请选择周期任务" 
-      :disabled="!selectedMaa" @change="handleRepetitiveTaskChange"  class="filter-dropdown"
+      :disabled="!selectedMaa||repetitiveReadOnly" @change="handleRepetitiveTaskChange"  class="filter-dropdown"
       clearable>
       <el-option
         v-for="task in taskOptions"
@@ -53,16 +53,16 @@
           }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="查看结果" min-width="7.8125%">
+      <el-table-column label="操作" min-width="7.8125%">
         <template #default="{ row }">
           <div v-if="row.isCompleted == true">
-            <el-button type="text" @click="openResult(row.id)">查看结果</el-button>
+            <el-button type="default" @click="openResult(row.id)">查看结果</el-button>
           </div>
         </template>
       </el-table-column>
     </el-table>
         <el-config-provider :locale="zhCn">
-    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+    <el-pagination class="pagination" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
       :page-sizes="[10, 20, 50, 100]" :page-size="perPage" layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination></el-config-provider>
@@ -102,6 +102,7 @@ var repetitiveTaskId: string | null = Array.isArray(route.params.repetitiveTaskI
   ? route.params.repetitiveTaskId[0]
   : route.params.repetitiveTaskId;
 var connectionReadOnly: boolean = connectionId!=null;
+var repetitiveReadOnly: boolean = repetitiveTaskId!=null;
 
 // MAA连接选项
 const maaOptions = ref([
@@ -119,21 +120,16 @@ const taskOptions = ref([
 ]);
 
 const handleMaaChange = async () => {
-
   //将所选id赋值给connectionId
   connectionId = selectedMaa.value
-
   selectedTask.value = null; // 当MAA变更时，重置周期任务选择
-
   //立即刷新一次
   await fetchTasks(currentPage.value);
 }
 
 const handleRepetitiveTaskChange = async () => {
-
   //将所选id赋值给repetitiveTaskId
   repetitiveTaskId = selectedTask.value
-
   //立即刷新一次
   await fetchTasks(currentPage.value);
 }
@@ -157,8 +153,13 @@ onMounted(async () => {
     selectedMaa.value = maaOptions.value[index].value
   }
 
-  //创建一个任务,每隔20秒执行一次fetchTasks
   await fetchTasks(currentPage.value);
+
+  const repIndex = taskOptions.value.findIndex((option: any) => option.value == repetitiveTaskId)
+  if (index != -1) {
+    selectedTask.value = taskOptions.value[repIndex].value
+  }
+
   setInterval(async () => {
     await fetchTasks(currentPage.value);
   }, 10000)
@@ -270,71 +271,10 @@ const openResult = async (id: string) => {
   margin-right: 10px;
 }
 
-
-.data-table {
-  /* 数据表格的特定样式 */
-}
-
-.el-table {
-  width: 100%;
-  max-width: 100%;
-  /* 确保即使屏幕缩放，也能占满 */
-  --el-border-color: #e4e7ed;
-  --el-border-style: solid;
-  --el-border-width: 1px;
-}
-
-.el-table .el-table__header-wrapper {
-  background-color: #f5f7fa;
-}
-
-.el-table .el-table__row:hover {
-  background-color: #ecf5ff;
-}
-
-.el-tag {
-  cursor: pointer;
-}
-
-.el-pagination {
+.pagination {
   margin-top: 20px;
   text-align: center;
 }
 
-.el-button {
-  color: #409eff;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* 调整分页器大小选择器和跳转器的样式 */
-.el-pagination .el-pagination__sizes,
-.el-pagination .el-pagination__jump {
-  display: flex;
-  align-items: center;
-}
-
-/* 样式调整，以便看起来更加紧凑 */
-.el-pagination .el-pagination__sizes .el-select {
-  width: auto;
-}
-
-.el-pagination .el-pagination__jump {
-  margin-left: 15px;
-}
-
-/* 设置表格内边距和字体大小 */
-.el-table td,
-.el-table th {
-  padding: 8px 0;
-  font-size: 14px;
-}
-
-/* 修正按钮的高度，以便和文本对齐 */
-.el-button {
-  height: auto;
-  padding: 0;
-  line-height: inherit;
-}
 </style>
 

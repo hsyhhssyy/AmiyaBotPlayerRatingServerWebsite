@@ -55,10 +55,20 @@ const routes = [
       },      
       {
         path: 'maa-management/:connectionId/task-list',
-        name: '任务列表',
+        name: '连接任务执行结果',
         component: MAATaskList,
         meta: { 
           parent: 'MAA连接',
+          toolbarComponent: MAATaskListToolbar 
+        },
+        props: true
+      },   
+      {
+        path: 'maa-management/:connectionId/task-list/:repetitiveTaskId',
+        name: '定时任务执行结果',
+        component: MAATaskList,
+        meta: { 
+          parent: '定时任务',
           toolbarComponent: MAATaskListToolbar 
         },
         props: true

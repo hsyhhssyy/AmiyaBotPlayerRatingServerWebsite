@@ -60,7 +60,7 @@ const addConnection = async () => {
 };
 
 const cardClick = (connection: any) => {
-  router.push({ name: '任务列表', params: { connectionId: connection.id } });
+  router.push({ name: '连接任务执行结果', params: { connectionId: connection.id } });
 };
 
 const deleteConnectionById = async (id: string) => {
