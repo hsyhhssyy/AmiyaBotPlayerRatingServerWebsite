@@ -17,7 +17,7 @@
           <el-option label="启动一键长草任务 (LinkStart)" value="LinkStart"></el-option>
           <el-option label="单次抽卡任务 (Toolbox-GachaOnce)" value="Toolbox-GachaOnce"></el-option>
           <el-option label="十连抽卡任务 (Toolbox-GachaTenTimes)" value="Toolbox-GachaTenTimes"></el-option>
-          <el-option label="修改连接地址设置 (Settings-ConnectionAddress)" value="Settings-ConnectionAddress"></el-option>
+          <el-option label="修改连接地址设置 (Settings-ConnectAddress)" value="Settings-ConnectAddress"></el-option>
           <el-option label="立即截图任务 (CaptureImageNow)" value="CaptureImageNow"></el-option>
           <el-option label="结束当前任务 (StopTask)" value="StopTask"></el-option>
           <el-option label="一键长草-基建任务 (LinkStart-Base)" value="LinkStart-Base"></el-option>
@@ -41,7 +41,7 @@
           <el-option label="ZT-10" value="ZT-10"></el-option>
         </el-select>
       </div>
-      <div class="dialog-row" v-if="taskType === 'Settings-ConnectionAddress'">
+      <div class="dialog-row" v-if="taskType === 'Settings-ConnectAddress'">
         <label for="settingsConnectionAddressStr" class="dialog-label">连接地址:</label>
         <el-input v-model="settingsConnectionAddressStr" id="settingsConnectionAddressStr"
           placeholder="请输入连接地址"></el-input>
@@ -135,7 +135,7 @@ const submitForm = () => {
   }
 
   switch (taskType.value) {
-    case 'Settings-ConnectionAddress':
+    case 'Settings-ConnectAddress':
       dataToReturn.parameters = settingsConnectionAddressStr.value;
       break;
     default:
