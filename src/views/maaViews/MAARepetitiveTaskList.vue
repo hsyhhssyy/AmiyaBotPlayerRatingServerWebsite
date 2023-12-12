@@ -48,9 +48,9 @@
         <template #default="{ row }">
             <el-button type="primary" @click="openResult(row.id)">最近结果</el-button>
             <el-button type="default" @click="allResult(row.id)">全部结果</el-button>
-            <el-button type="warning" @click="openResult(row.id)" v-if="row.isPaused!=true">暂停</el-button>
-            <el-button type="success" @click="openResult(row.id)" v-if="row.isPaused==true">继续</el-button>
-            <el-button type="danger" @click="openResult(row.id)">删除</el-button>
+            <el-button type="warning" @click="pauseTask(row.id)" v-if="row.isPaused!=true">暂停</el-button>
+            <el-button type="success" @click="unpauseTask(row.id)" v-if="row.isPaused==true">继续</el-button>
+            <el-button type="danger" @click="deleteTask(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -72,7 +72,8 @@ import AddTaskDialog from '../../components/dialogs/maaDialogs/AddTaskDialog.vue
 import TaskImageViewerDialog from '../../components/dialogs/maaDialogs/TaskImageViewerDialog.vue';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { ElTableColumn, ElButton, ElPagination } from 'element-plus';
-import { listAllConnections, addTask ,listRepetitiveTasks,addRepetitiveTask} from "@src/api/MAAConnection"
+import { listAllConnections, addTask ,listRepetitiveTasks,addRepetitiveTask, 
+  pauseRepetitiveTask,unpauseRepetitiveTask,deleteRepetitiveTask} from "@src/api/MAAConnection"
 import cronstrue from 'cronstrue/i18n';
 
 const route = useRoute();
@@ -126,7 +127,11 @@ onMounted(async () => {
   const index = maaOptions.value.findIndex((option: any) => option.value == connectionId)
   if (index != -1) {
     selectedMaa.value = maaOptions.value[index].value
+  }else{
+    selectedMaa.value = maaOptions.value[0].value
   }
+  
+  await handleMaaChange();
 
   //创建一个任务,每隔20秒执行一次fetchTasks
   await fetchTasks(currentPage.value);
@@ -164,6 +169,9 @@ const addTaskAction = async () => {
 
 const fetchTasks = async (_page: number) => {
   try {
+    if (!connectionId) {
+      return
+    }
     const response = await await listRepetitiveTasks(connectionId)
     
     tasks.value = response.repetitiveTasks;
@@ -199,7 +207,22 @@ const handleCurrentChange = (newPage: number) => {
 };
 
 const openResult = async (id: string) => {
-  await taskImageViewerDialog.value?.showDialog(connectionId, id);
+  await taskImageViewerDialog.value?.showDialog(connectionId, id, 'maaRepetitiveTasks');
+};
+
+const pauseTask = async (id: string) => {
+  await pauseRepetitiveTask(connectionId, id);
+  await fetchTasks(currentPage.value);
+};
+
+const unpauseTask = async (id: string) => {
+  await unpauseRepetitiveTask(connectionId, id);
+  await fetchTasks(currentPage.value);
+};
+
+const deleteTask = async (id: string) => {
+  await deleteRepetitiveTask(connectionId, id);
+  await fetchTasks(currentPage.value);
 };
 
 const allResult = (id: string) => {

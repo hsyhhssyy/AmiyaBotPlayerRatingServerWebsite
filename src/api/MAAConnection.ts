@@ -178,6 +178,63 @@ export const addRepetitiveTask = async (connId: string,
     }
 };
 
+export const pauseRepetitiveTask = async (connId: string, repetitiveTaskId: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/${connId}/maaRepetitiveTasks/${repetitiveTaskId}/pause`, null, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`发生异常(id=${connId}): `, error);
+        throw error;
+    }
+}
+
+export const unpauseRepetitiveTask = async (connId: string, repetitiveTaskId: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/${connId}/maaRepetitiveTasks/${repetitiveTaskId}/unpause`, null, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`发生异常(id=${connId}): `, error);
+        throw error;
+    }
+}
+
+export const deleteRepetitiveTask = async (connId: string, repetitiveTaskId: string) => {
+    try {
+        const response = await axios.delete(`${BASE_URL}/${connId}/maaRepetitiveTasks/${repetitiveTaskId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`发生异常(id=${connId}): `, error);
+        throw error;
+    }
+}
+
+
+export const getRepetitiveTaskImage = async (connId: string,taskId: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/${connId}/maaRepetitiveTasks/${taskId}/image`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+            },
+        });
+        return response.data.image;
+    } catch (error) {
+        console.error(`发生异常(id=${connId}): `, error);
+        throw error;
+    }
+};
+
 export default {
     listAllConnections,
     getConnection,
@@ -188,5 +245,8 @@ export default {
     getConnectionThumbnail,
     getTaskImage,
     listRepetitiveTasks,
-    addRepetitiveTask
+    addRepetitiveTask,
+    pauseRepetitiveTask,
+    unpauseRepetitiveTask,
+    deleteRepetitiveTask,
 };

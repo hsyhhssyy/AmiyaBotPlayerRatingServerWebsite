@@ -15,7 +15,7 @@
     
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { getTaskImage } from '@src/api/MAAConnection';
+import { getTaskImage,getRepetitiveTaskImage } from '@src/api/MAAConnection';
 
 const dialogVisible = ref(false);
 const taskId = ref('');
@@ -35,13 +35,17 @@ const closeDialog = () => {
     resolveDialog && resolveDialog(false);
 };
 
-const showDialog = (cid: string, tid: string) => {
+const showDialog = (cid: string, tid: string, type:string = "maaTasks") => {
     return new Promise<boolean>(async (resolve) => {
         resolveDialog = resolve;
         dialogVisible.value = true;
         connectionId.value = cid
         taskId.value = tid
-        var imgBase64 = await getTaskImage(connectionId.value, taskId.value)
+        if(type==="maaTask"){
+            var imgBase64 = await getTaskImage(connectionId.value, taskId.value)
+        }else{
+            var imgBase64 = await getRepetitiveTaskImage(connectionId.value, taskId.value)
+        }
         if (imgBase64) {
             screenshot.value = imgBase64;
         }
