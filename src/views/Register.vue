@@ -83,12 +83,15 @@ const register = async () => {
         let message = '注册失败';
 
         // 检查error对象是否有符合预期结构的属性
+        // error.response.data可能是数组，如果是数组，需要显示多个toast
         if (error.response &&
             error.response.data &&
             Array.isArray(error.response.data) &&
             error.response.data[0] &&
             error.response.data[0].description) {
-            message = error.response.data[0].description;
+            for (const item of error.response.data) {
+                message += '\n' + item.description;
+            }
         }
 
         // 显示红色的toast
@@ -96,6 +99,7 @@ const register = async () => {
             message: message,
             type: 'error',
         });
+
 
         console.error('注册失败:', error);
     }
