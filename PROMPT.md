@@ -38,3 +38,5 @@ const resolved = router.resolve({ name: parent });
 
 
 接下来请提供script部分,请使用<script lang="ts" setup>,并且使用Vue3,响应式语法
+
+1
